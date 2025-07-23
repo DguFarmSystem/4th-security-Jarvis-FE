@@ -1,55 +1,30 @@
-name: Deploy Preview to Vercel on main push
+name: Synchronize to forked repository
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
-  deployments: write
-  id-token: write
-
 jobs:
-  vercel-deploy:
-    name: Deploy to Vercel Preview
+  sync:
+    name: Synchronize to forked repository
     runs-on: ubuntu-latest
 
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
     steps:
-      - name: Checkout code
+      - name: Checkout current branch
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.AUTO_ACTIONS }}
           fetch-depth: 0
 
-      - name: Install Vercel CLI and PNPM
+      - name: Add remote forked-repo
         run: |
-          npm install --global vercel@latest pnpm
+          git remote add forked-repo https://minij02:${{ secrets.AUTO_ACTIONS }}@github.com/minij02/4th-security-Jarvis-FE.git
+          git config user.name "minij02"
+          git config user.email "${{ secrets.OFFICIAL_ACCOUNT_EMAIL }}"
 
-      - name: Pull Vercel environment (preview)
-        run: |
-          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Push to fork
+        run: git push -f forked-repo main
 
-      - name: Install dependencies (pnpm)
-        run: |
-          pnpm install
-
-      - name: Build project using Vercel
-        run: |
-          vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy to Vercel
-        id: deploy
-        run: |
-          PREVIEW_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1)
-          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
-
-      - name: Clean up .vercel folder
-        run: rm -rf .vercel
-
-      - name: Output Preview URL
-        run: |
-          echo "✅ Preview URL: ${{ steps.deploy.outputs.preview_url }}"
+      - name: Clean up
+        run: git remote remove forked-repo
