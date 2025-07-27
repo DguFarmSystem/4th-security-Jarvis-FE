@@ -1,0 +1,8 @@
+@import "./theme.css";
+
+/* 전역 유틸리티 클래스 */
+.bg-gradient-main {
+  width: var(--layout-width);
+  height: var(--layout-height);
+  background: var(--background-gradient-main);
+}

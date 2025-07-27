@@ -40,4 +40,15 @@
   --font-weight-bold: 700;
 
   --leading-normal: normal;
+
+  /* Background */
+  --background-gradient-main: linear-gradient(
+    276deg,
+    var(--color-blue-200) 12.83%,
+    var(--color-blue-100) 53.52%,
+    var(--color-mint-100) 94.21%
+  );
+
+  --layout-width: 1440px;
+  --layout-height: 1024px;
 }
