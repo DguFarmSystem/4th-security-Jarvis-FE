@@ -23,6 +23,9 @@
   --color-green-100: #258b62;
   --color-dark-100: #080808;
 
+  /* Custom Shadows */
+  --shadow-tab: 0 0 20px 0 rgba(0, 0, 0, 0.15);
+
   /* Typography */
   --font-pretendard: "Pretendard", sans-serif;
 
