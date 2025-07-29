@@ -21,3 +21,9 @@ export const SessionLog: Story = {
     mode: "sessions",
   },
 };
+
+export const ActivityLog: Story = {
+  args: {
+    mode: "activities",
+  },
+};
