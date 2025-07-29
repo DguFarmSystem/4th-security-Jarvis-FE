@@ -1,5 +1,5 @@
 import { Tab } from "./index";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 const meta: Meta<typeof Tab> = {
   title: "Components/Tab",
@@ -12,6 +12,5 @@ type Story = StoryObj<typeof Tab>;
 
 export const Default: Story = {
   args: {
-    children: "Tab 내용",
   },
 };
