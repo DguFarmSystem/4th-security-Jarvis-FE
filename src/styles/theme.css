@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   /* Colors */
   --color-white: #ffffff;
   --color-black: #000000;
@@ -23,6 +23,9 @@
   --color-green-100: #258b62;
   --color-dark-100: #080808;
 
+  /* Custom Shadows */
+  --shadow-tab: 0 0 20px 0 rgba(0, 0, 0, 0.15);
+
   /* Typography */
   --font-pretendard: "Pretendard", sans-serif;
 
@@ -40,4 +43,15 @@
   --font-weight-bold: 700;
 
   --leading-normal: normal;
+
+  /* Background */
+  --background-gradient-main: linear-gradient(
+    276deg,
+    var(--color-blue-200) 12.83%,
+    var(--color-blue-100) 53.52%,
+    var(--color-mint-100) 94.21%
+  );
+
+  --layout-width: 1440px;
+  --layout-height: 1024px;
 }
