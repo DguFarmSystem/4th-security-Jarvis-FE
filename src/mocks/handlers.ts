@@ -1,4 +1,5 @@
 import { http, HttpResponse, delay } from "msw";
+const mockToken = 'mock-jwt-token';
 
 // --- Mock 데이터베이스 ---
 const mockUsers = [
@@ -39,17 +40,14 @@ export const handlers = [
   }),
 
   // GitHub 로그인 후 리다이렉트 + 쿠키 설정
- http.get('/login', () => {
-  const token =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTM0MDY0ODgsImlhdCI6MTc1MzQwMjg4OCwidXNlcm5hbWUiOiJDb21ldFdvbyJ9.2zmA0BhAzcVrW25Pt1L4HzTWu3GdfldLtwTCv1XBe1k';
-
-  return HttpResponse.text('Redirecting...', {
-    status: 302,
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Location': 'http://openswdev.duckdns.org:3000',
-      'Set-Cookie': `auth_token=${token}; Path=/; Max-Age=3600; HttpOnly`,
-    },
-  });
-}),
+ // 로그인 요청 핸들러
+  http.get('https://openswdev.duckdns.org:3000/', () => {
+    return HttpResponse.text('Redirecting...', {
+      status: 302,
+      headers: {
+        'Location': 'https://jarvis-indol-omega.vercel.app',
+        'Set-Cookie': `auth_token=${mockToken}; Path=/; Max-Age=3600; HttpOnly`,
+      },
+    });
+  }),
 ];
