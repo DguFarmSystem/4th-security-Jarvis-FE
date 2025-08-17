@@ -78,7 +78,7 @@ export function UserManagement({
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
-            {["User", "Email", "Role", ""].map((th, i) => (
+            {["User", "Role", ""].map((th, i) => (
               <th
                 key={i}
                 style={{
