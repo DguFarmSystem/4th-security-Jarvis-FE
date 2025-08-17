@@ -20,7 +20,7 @@ export default function SessionPage() {
 
   useEffect(() => {
     // audits
-    api.get("/api/v1/audit/events").then((res) => {
+    api.get("/audit/events").then((res) => {
       const rawEvents = res.data;
       const audits: AuditLog[] = rawEvents.map((event: any) => ({
         time: new Date(event.time).toLocaleString(), // ex: "2025-08-16 11:45"
@@ -31,7 +31,7 @@ export default function SessionPage() {
     });
 
     // sessions
-    api.get("/api/v1/audit/session").then((res) => {
+    api.get("/audit/session").then((res) => {
       const rawSessions = res.data;
       const sessions: SessionLog[] = rawSessions.map((session: any) => {
         const start = new Date(session.session_start);
