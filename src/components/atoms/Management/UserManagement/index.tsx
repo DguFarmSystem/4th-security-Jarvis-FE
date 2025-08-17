@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../../Button/index";
 import { TrashIcon } from "../../../../assets/icons/TrashIcon";
 
-type UserRow = { user: string; email: string; role: string; };
+type UserRow = { user: string; role: string; };
 
 interface UserManagementProps {
     title?: string;
@@ -12,9 +12,9 @@ interface UserManagementProps {
 }
 
 const DEFAULT_USERS: UserRow[] = [
-  { user: "john.doe", email: "john@example.com", role: "Viewer" },
-  { user: "jane.smith", email: "jane@example.com", role: "Viewer" },
-  { user: "sam.lee", email: "sam@example.com", role: "Viewer" },
+  { user: "john.doe", role: "Viewer" },
+  { user: "jane.smith", role: "Viewer" },
+  { user: "sam.lee", role: "Viewer" },
 ];
 
 export function UserManagement({
@@ -100,7 +100,6 @@ export function UserManagement({
           {users.map((row, idx) => (
             <tr key={`${row.user}-${idx}`} style={{ height: 44 }}>
               <td style={cellStyle}>{row.user}</td>
-              <td style={cellStyle}>{row.email}</td>
               <td style={cellStyle}>{row.role}</td>
               <td style={{ ...cellStyle, textAlign: "right" }}>
                 <button
