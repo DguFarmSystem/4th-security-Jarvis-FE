@@ -59,7 +59,7 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
                   fontWeight: 700,
                   lineHeight: "normal",
                   verticalAlign: "middle",
-                  borderBottom: "1px solid var(--color-gray-300)",
+                  borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
                 }}
               >
                 {title}
@@ -75,7 +75,7 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
                   key={key}
                   style={{
                     ...cellStyle,
-                    borderBottom: "1px solid var(--color-gray-300)",
+                    borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
                   }}
                 >
                   {(row as any)[key.toLowerCase()] ?? "-"}
