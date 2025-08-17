@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { api } from "./utils/axios";
 import LoginModal from "./components/atoms/Modal/LoginModal";
+import DashboardPage from "./pages/DashboardPage";
 import SessionPage from "./pages/SessionPage";
 import ManagementPage from "./pages/ManagementPage";
 import { Tab } from "./components/atoms/Tab";
@@ -33,12 +34,13 @@ function App() {
           <Tab title="Admin Console" />
           <div style={{ flex: 1, padding: "24px" }}>
             <Routes>
-              {/* 초기 접근 시 /sessions로 리디렉션 */}
-              <Route path="/" element={<Navigate to="/sessions" />} />
+              {/* 기본 경로를 대시보드로 리디렉션 */}
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/sessions" element={<SessionPage />} />
               <Route path="/management" element={<ManagementPage />} />
-              {/* 존재하지 않는 경로 → /sessions로 이동 */}
-              <Route path="*" element={<Navigate to="/sessions" />} />
+              {/* 존재하지 않는 경로 → 대시보드로 이동 */}
+              <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
           </div>
         </div>
