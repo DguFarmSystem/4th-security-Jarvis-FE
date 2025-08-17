@@ -1,5 +1,3 @@
-// src/pages/ManagementPage/index.tsx
-
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import {
@@ -14,6 +12,8 @@ import { RoleManagement } from "../../components/atoms/Management/RoleManagement
 import { ConfirmDeleteModal } from "../../components/atoms/Modal/ConfirmDeleteModal";
 import { UpdateUserModal } from "../../components/atoms/Modal/UpdateUserModal";
 
+import { api } from "../../utils/axios";
+
 type User = {
   kind: string;
   metadata: {
@@ -26,9 +26,10 @@ type User = {
 
 type Role = {
   kind: string;
-  metadata: {
+  metadata?: {
     name: string;
   };
+  name?: string; 
 };
 
 export default function ManagementPage() {
@@ -41,17 +42,24 @@ export default function ManagementPage() {
   const [selectedUser, setSelectedUser] = useAtom(selectedUserAtom);
   const [selectedRole, setSelectedRole] = useAtom(selectedRoleAtom);
 
-  // Fetch users and roles
+  // 사용자 목록 가져오기
   const fetchUsers = async () => {
-    const res = await fetch("https://openswdev.duckdns.org:3000/api/v1/users");
-    const data = await res.json();
-    setUsers(data);
+    try {
+      const { data } = await api.get("/users");
+      setUsers(data);
+    } catch (err) {
+      console.error("유저 목록 가져오기 실패", err);
+    }
   };
 
+  // 역할 목록 가져오기
   const fetchRoles = async () => {
-    const res = await fetch("https://openswdev.duckdns.org:3000/api/v1/roles");
-    const data = await res.json();
-    setRoles(data);
+    try {
+      const { data } = await api.get("/roles");
+      setRoles(data);
+    } catch (err) {
+      console.error("역할 목록 가져오기 실패", err);
+    }
   };
 
   useEffect(() => {
@@ -59,69 +67,86 @@ export default function ManagementPage() {
     fetchRoles();
   }, []);
 
+  // 사용자 삭제
   const handleUserDelete = async () => {
     if (!selectedUser) return;
-    await fetch(`https://openswdev.duckdns.org:3000/api/v1/users/${selectedUser.username}`, {
-      method: "DELETE",
-    });
-    setDeleteModalOpen(false);
-    setSelectedUser(null);
-    fetchUsers();
+    try {
+      await api.delete(`/users/${selectedUser.username}`);
+      setDeleteModalOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("사용자 삭제 실패", err);
+    }
   };
 
+  // 역할 삭제
   const handleRoleDelete = async () => {
     if (!selectedRole) return;
-    await fetch(`https://openswdev.duckdns.org:3000/api/v1/roles/${selectedRole.role}`, {
-      method: "DELETE",
-    });
-    setDeleteModalOpen(false);
-    setSelectedRole(null);
-    fetchRoles();
+    try {
+      await api.delete(`/roles/${selectedRole.role}`);
+      setDeleteModalOpen(false);
+      setSelectedRole(null);
+      fetchRoles();
+    } catch (err) {
+      console.error("역할 삭제 실패", err);
+    }
   };
 
+  // 사용자 업데이트
   const handleUserUpdate = async (updated: { username: string; role: string }) => {
-    await fetch(`https://openswdev.duckdns.org:3000/api/v1/users/${updated.username}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roles: updated.role }),
-    });
-    setUpdateUserModalOpen(false);
-    setSelectedUser(null);
-    fetchUsers();
+    try {
+      await api.put(`/users/${updated.username}`, {
+        roles: [updated.role],
+      });
+      setUpdateUserModalOpen(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("사용자 업데이트 실패", err);
+    }
   };
 
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "48px" }}>
-      {/* User 관리 */}
+      {/* 사용자 관리 */}
       <UserManagement
         users={users.map((u) => ({
           user: u.metadata.name,
-          email: "", // 실제 API에 이메일 없음
+          email: "", // 현재 API에는 없음
           role: u.spec.roles.join(", "),
         }))}
         onAddUser={() => {
-          // AddUserModal 향후 확장
+          // TODO: AddUserModal 확장 예정
         }}
         onDelete={(index) => {
           const user = users[index];
           setSelectedUser({
             username: user.metadata.name,
             email: "", // placeholder
-            role: user.spec.roles.join(","),
+            role: user.spec.roles.join(", "),
           });
           setDeletingTarget("user");
           setDeleteModalOpen(true);
         }}
       />
 
-      {/* Role 관리 */}
+      {/* 역할 관리 */}
       <RoleManagement
         roles={roles.map((r) => ({
-          role: r.metadata.name,
-          permissionsLeft: [], // 실제 권한 추출 필요 시 추후 확장
+          role: r.metadata?.name ?? r.name ?? "unknown",
+          permissionsLeft: [], // TODO: 권한 목록 추출 시 확장
         }))}
         onCreateRole={() => {
-          // CreateRoleModal 향후 확장
+          // TODO: CreateRoleModal 확장 예정
+        }}
+        onDelete={(index) => {
+          const role = roles[index];
+          setSelectedRole({
+            role: role.metadata?.name ?? "unknown",
+          });
+          setDeletingTarget("role");
+          setDeleteModalOpen(true);
         }}
       />
 

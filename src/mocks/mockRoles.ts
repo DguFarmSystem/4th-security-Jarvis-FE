@@ -1,16 +1,6 @@
 // mockRoles.ts
 export const mockRoles = [
   {
-    "name": "editor",
-    "logins": ["ubuntu"]
-  },
-  {
-    "name": "api-tester",
-    "app_labels": {
-      "*": "*"
-    }
-  },
-  {
     "kind": "role",
     "version": "v7",
     "metadata": {
