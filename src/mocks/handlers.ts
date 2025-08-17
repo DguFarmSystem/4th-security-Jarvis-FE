@@ -1,42 +1,41 @@
 import { http, HttpResponse, delay } from "msw";
+import { mockUsers } from "./mockUser";
+import { mockRoles } from "./mockRoles";
+import { mockNodes } from "./mockNodes";
+import { mockEvents } from "./mockEvents";
+import { mockSessions } from "./mockSessions";
 const mockToken = 'mock-jwt-token';
-
-// --- Mock 데이터베이스 ---
-const mockUsers = [
-  { name: 'comet', roles: ['editor', 'access'] },
-  { name: 'api-user', roles: ['api-tester'] },
-];
-
-const mockRoles = [
-  { name: 'editor', logins: ['ubuntu'] },
-  { name: 'api-tester', app_labels: { '*': '*' } },
-];
-
-const mockNodes = [
-  {
-    hostname: 'gcp-instance-1',
-    addr: '34.64.197.81',
-  },
-];
 
 // --- API 핸들러  ---
 export const handlers = [
-    // GET /api/users
-  http.get('/api/users', async () => {
+    // GET /api/v1/users
+  http.get('/api/v1/users', async () => {
     await delay(500); // 응답 지연 시뮬레이션
     return HttpResponse.json(mockUsers);
   }),
 
-  // GET /api/roles
-  http.get('/api/roles', async () => {
+  // GET /api/v1/roles
+  http.get('/api/v1/roles', async () => {
     await delay(500);
     return HttpResponse.json(mockRoles);
   }),
  
-   // GET /api/resources/nodes
-  http.get('/api/resources/nodes', async () => {
+   // GET /api/v1/resources/nodes
+  http.get('/api/v1/resources/nodes', async () => {
     await delay(500);
     return HttpResponse.json(mockNodes);
+  }),
+
+  // GET /api/v1/audit/events
+  http.get('/api/v1/audit/events', async () => {
+    await delay(500);
+    return HttpResponse.json(mockEvents);
+  }),
+
+  // GET /api/v1/audit/session
+  http.get('/api/v1/audit/session', async () => {
+    await delay(500);
+    return HttpResponse.json(mockSessions);
   }),
 
   // GitHub 로그인 후 리다이렉트 + 쿠키 설정
