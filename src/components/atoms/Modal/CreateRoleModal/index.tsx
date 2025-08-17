@@ -1,24 +1,31 @@
-export const CreateRoleModal = () => {
-  const permissions = [
-    "View resources",
-    "Edit resources",
-    "View audit log",
-    "View resources",
-    "Edit resources",
-    "View audit log",
-    "View resources",
-    "Edit resources",
-    "View audit log",
-    "View resources",
-    "Edit resources",
-    "View audit log",
-  ];
+type CreateRoleModalProps = {
+  permissions: string[];
+  selected: string[];
+  onChange: (selected: string[]) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+};
+
+export const CreateRoleModal = ({
+  permissions,
+  selected,
+  onChange,
+  onSubmit,
+  onCancel,
+}: CreateRoleModalProps) => {
+  const handleCheckboxChange = (perm: string) => {
+    if (selected.includes(perm)) {
+      onChange(selected.filter((p) => p !== perm));
+    } else {
+      onChange([...selected, perm]);
+    }
+  };
 
   return (
     <div
       style={{
         width: "488px",
-        height: "356px",
+        height: "auto",
         position: "relative",
         flexShrink: 0,
         borderRadius: "40px",
@@ -42,15 +49,14 @@ export const CreateRoleModal = () => {
         Create Role
       </h2>
 
-{/* 가로선 */}
       <div
         style={{
           position: "absolute",
-    bottom: "301px", // 모달 하단 기준으로 301px 위에 위치
-    left: "0",
-    width: "100%",
-    height: "1px",
-    background: "#B9B9B9",
+          top: "60px",
+          left: "0",
+          width: "100%",
+          height: "1px",
+          background: "#B9B9B9",
         }}
       />
 
@@ -59,8 +65,8 @@ export const CreateRoleModal = () => {
           display: "grid",
           gridTemplateColumns: "repeat(2, 1fr)",
           gap: "12px 24px",
-          marginTop: "auto",
-          marginBottom: "47px",
+          marginTop: "30px",
+          marginBottom: "20px",
         }}
       >
         {permissions.map((perm, idx) => (
@@ -75,10 +81,19 @@ export const CreateRoleModal = () => {
               gap: "8px",
             }}
           >
-            <input type="checkbox" defaultChecked />
+            <input
+              type="checkbox"
+              checked={selected.includes(perm)}
+              onChange={() => handleCheckboxChange(perm)}
+            />
             {perm}
           </label>
         ))}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+        <button onClick={onCancel}>Cancel</button>
+        <button onClick={onSubmit}>Create</button>
       </div>
     </div>
   );

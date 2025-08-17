@@ -11,6 +11,7 @@ import { UserManagement } from "../../components/atoms/Management/UserManagement
 import { RoleManagement } from "../../components/atoms/Management/RoleManagement";
 import { ConfirmDeleteModal } from "../../components/atoms/Modal/ConfirmDeleteModal";
 import { UpdateUserModal } from "../../components/atoms/Modal/UpdateUserModal";
+import { CreateRoleModal } from "../../components/atoms/Modal/CreateRoleModal";
 
 import { api } from "../../utils/axios";
 
@@ -29,7 +30,14 @@ type Role = {
   metadata?: {
     name: string;
   };
-  name?: string; 
+  spec?: {
+    allow?: {
+      rules?: {
+        resources: string[];
+        verbs: string[];
+      }[];
+    };
+  };
 };
 
 export default function ManagementPage() {
@@ -42,21 +50,22 @@ export default function ManagementPage() {
   const [selectedUser, setSelectedUser] = useAtom(selectedUserAtom);
   const [selectedRole, setSelectedRole] = useAtom(selectedRoleAtom);
 
-  // 사용자 목록 가져오기
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
+
   const fetchUsers = async () => {
     try {
       const { data } = await api.get("/users");
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : data?.users ?? []);
     } catch (err) {
       console.error("유저 목록 가져오기 실패", err);
     }
   };
 
-  // 역할 목록 가져오기
   const fetchRoles = async () => {
     try {
       const { data } = await api.get("/roles");
-      setRoles(data);
+      setRoles(Array.isArray(data) ? data : data?.roles ?? []);
     } catch (err) {
       console.error("역할 목록 가져오기 실패", err);
     }
@@ -67,7 +76,6 @@ export default function ManagementPage() {
     fetchRoles();
   }, []);
 
-  // 사용자 삭제
   const handleUserDelete = async () => {
     if (!selectedUser) return;
     try {
@@ -80,7 +88,6 @@ export default function ManagementPage() {
     }
   };
 
-  // 역할 삭제
   const handleRoleDelete = async () => {
     if (!selectedRole) return;
     try {
@@ -93,7 +100,6 @@ export default function ManagementPage() {
     }
   };
 
-  // 사용자 업데이트
   const handleUserUpdate = async (updated: { username: string; role: string }) => {
     try {
       await api.put(`/users/${updated.username}`, {
@@ -107,23 +113,38 @@ export default function ManagementPage() {
     }
   };
 
+  const extractPermissionsFromRoles = (roles: Role[]): string[] => {
+    const permissionsSet = new Set<string>();
+
+    roles.forEach((role) => {
+      role.spec?.allow?.rules?.forEach((rule) => {
+        rule.resources.forEach((res) => {
+          rule.verbs.forEach((verb) => {
+            permissionsSet.add(`${res}: ${verb}`);
+          });
+        });
+      });
+    });
+
+    return Array.from(permissionsSet);
+  };
+
+  const allPermissions = extractPermissionsFromRoles(roles);
+
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "48px" }}>
-      {/* 사용자 관리 */}
       <UserManagement
         users={users.map((u) => ({
           user: u.metadata.name,
-          email: "", // 현재 API에는 없음
+          email: "",
           role: u.spec.roles.join(", "),
         }))}
-        onAddUser={() => {
-          // TODO: AddUserModal 확장 예정
-        }}
+        onAddUser={() => {}}
         onDelete={(index) => {
           const user = users[index];
           setSelectedUser({
             username: user.metadata.name,
-            email: "", // placeholder
+            email: "",
             role: user.spec.roles.join(", "),
           });
           setDeletingTarget("user");
@@ -131,26 +152,16 @@ export default function ManagementPage() {
         }}
       />
 
-      {/* 역할 관리 */}
       <RoleManagement
-        roles={roles.map((r) => ({
-          role: r.metadata?.name ?? r.name ?? "unknown",
-          permissionsLeft: [], // TODO: 권한 목록 추출 시 확장
-        }))}
-        onCreateRole={() => {
-          // TODO: CreateRoleModal 확장 예정
-        }}
-        onDelete={(index) => {
-          const role = roles[index];
-          setSelectedRole({
-            role: role.metadata?.name ?? "unknown",
-          });
-          setDeletingTarget("role");
-          setDeleteModalOpen(true);
-        }}
-      />
+  roles={roles.map((r) => ({
+    role: r.metadata?.name ?? "unknown",
+    permissions: extractPermissionsFromRoles([r]),
+    // 필요 시 체크된 권한 제공
+    // checkedPermissions: extractPermissionsFromRoles([r])
+  }))}
+  onCreateRole={() => setShowCreateModal(true)}
+/>
 
-      {/* 삭제 확인 모달 */}
       {isDeleteModalOpen && (
         <ConfirmDeleteModal
           title={`Delete ${deletingTarget === "user" ? "User" : "Role"}`}
@@ -166,13 +177,59 @@ export default function ManagementPage() {
         />
       )}
 
-      {/* 사용자 수정 모달 */}
       {isUpdateUserModalOpen && selectedUser && (
         <UpdateUserModal
           username={selectedUser.username}
           role={selectedUser.role}
           onSave={({ username, role }) => {
             handleUserUpdate({ username, role });
+          }}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateRoleModal
+          permissions={allPermissions}
+          selected={newRolePermissions}
+          onChange={setNewRolePermissions}
+          onCancel={() => {
+            setShowCreateModal(false);
+            setNewRolePermissions([]);
+          }}
+          onSubmit={async () => {
+            try {
+              const newRoleName = prompt("Enter role name") ?? "new-role";
+
+              await api.put("/roles", {
+                kind: "role",
+                version: "v7",
+                metadata: {
+                  name: newRoleName,
+                  description: "Newly created role",
+                  labels: {
+                    "teleport.internal/resource-type": "custom",
+                  },
+                  revision: "auto-gen",
+                },
+                spec: {
+                  allow: {
+                    rules: newRolePermissions.map((perm) => {
+                      const [res, verb] = perm.split(":").map((s) => s.trim());
+                      return {
+                        resources: [res],
+                        verbs: [verb],
+                      };
+                    }),
+                  },
+                },
+              });
+
+              setShowCreateModal(false);
+              setNewRolePermissions([]);
+              fetchRoles();
+            } catch (err) {
+              console.error("역할 생성 실패", err);
+            }
           }}
         />
       )}

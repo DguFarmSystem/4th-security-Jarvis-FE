@@ -4,26 +4,48 @@ type Permission = string;
 
 export type RoleRow = {
   role: string;
-  permissionsLeft: Permission[];
-  permissionsRight?: Permission[];
+  /**
+   * "resource: verb" 형태 등으로 평탄화된 권한 리스트
+   * 예: ["user: read", "node: list", ...]
+   */
+  permissions: Permission[];
+  /**
+   * 체크된 권한 목록(옵션). 미제공 시 모든 권한이 체크된 것으로 렌더.
+   */
+  checkedPermissions?: Permission[];
 };
 
 interface RoleManagementProps {
   title?: string;
   roles?: RoleRow[];
   onCreateRole?: () => void;
-  onTogglePermission?: (roleIndex: number, column: "left" | "right", permIndex: number, checked: boolean) => void;
+  /**
+   * 체크 상태 변경 콜백
+   * @param roleIndex 변경된 역할 인덱스
+   * @param permission 권한 문자열
+   * @param checked 체크 여부
+   */
+  onTogglePermission?: (
+    roleIndex: number,
+    permission: Permission,
+    checked: boolean
+  ) => void;
+}
+
+/** 내부 유틸: 1차원 배열을 2열로 분할 */
+function splitInTwo<T>(arr: T[]): [T[], T[]] {
+  const mid = Math.ceil(arr.length / 2);
+  return [arr.slice(0, mid), arr.slice(mid)];
 }
 
 const DEFAULT_ROLES: RoleRow[] = [
   {
     role: "Admin",
-    permissionsLeft: ["View resources", "Edit resources", "View audit log"],
-    permissionsRight: ["View resources", "Edit resources", "View audit log"],
+    permissions: ["View resources", "Edit resources", "View audit log", "Manage nodes", "Read sessions"],
   },
   {
     role: "User",
-    permissionsLeft: ["View resources", "Edit resources", "View audit log"],
+    permissions: ["View resources", "Read sessions"],
   },
 ];
 
@@ -54,7 +76,14 @@ export function RoleManagement({
       </div>
 
       {/* 상단 구분선 */}
-      <div style={{ height: 1, width: "100%", background: "var(--color-gray-400, #D3D3D3)", marginBottom: 8 }} />
+      <div
+        style={{
+          height: 1,
+          width: "100%",
+          background: "var(--color-gray-400, #D3D3D3)",
+          marginBottom: 8,
+        }}
+      />
 
       {/* 헤더 라벨 */}
       <div
@@ -74,64 +103,66 @@ export function RoleManagement({
 
       {/* 목록 */}
       <div>
-        {roles.map((r, rIdx) => (
-          <div
-            key={`${r.role}-${rIdx}`}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "200px 1fr",
-              padding: "12px 8px",
-              borderBottom:
-                rIdx === roles.length - 1 ? "none" : "1px solid var(--color-gray-400, #D3D3D3)",
-            }}
-          >
-            {/* Role */}
-            <div style={{ color: "#000", fontSize: 14 }}>{r.role}</div>
+        {roles.map((r, rIdx) => {
+          const [left, right] = splitInTwo(r.permissions);
+          const isChecked = (perm: string) =>
+            r.checkedPermissions ? r.checkedPermissions.includes(perm) : true;
 
-            {/* Permissions (2 columns) */}
+          return (
             <div
+              key={`${r.role}-${rIdx}`}
               style={{
                 display: "grid",
-                gridTemplateColumns: r.permissionsRight?.length ? "1fr 1fr" : "1fr",
-                gap: "8px 32px",
+                gridTemplateColumns: "200px 1fr",
+                padding: "12px 8px",
+                borderBottom:
+                  rIdx === roles.length - 1 ? "none" : "1px solid var(--color-gray-400, #D3D3D3)",
               }}
             >
-              {/* left */}
-              <div style={{ display: "grid", gap: 8 }}>
-                {r.permissionsLeft.map((p, pIdx) => (
-                  <label key={`L-${pIdx}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      onChange={(e) =>
-                        onTogglePermission?.(rIdx, "left", pIdx, e.currentTarget.checked)
-                      }
-                    />
-                    <span style={{ color: "#000", fontSize: 14 }}>{p}</span>
-                  </label>
-                ))}
-              </div>
+              {/* Role */}
+              <div style={{ color: "#000", fontSize: 14 }}>{r.role}</div>
 
-              {/* right (optional) */}
-              {r.permissionsRight?.length ? (
+              {/* Permissions (2 columns auto) */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: right.length ? "1fr 1fr" : "1fr",
+                  gap: "8px 32px",
+                }}
+              >
+                {/* Left column */}
                 <div style={{ display: "grid", gap: 8 }}>
-                  {r.permissionsRight.map((p, pIdx) => (
-                    <label key={`R-${pIdx}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {left.map((p, pIdx) => (
+                    <label key={`L-${p}-${pIdx}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <input
                         type="checkbox"
-                        defaultChecked
-                        onChange={(e) =>
-                          onTogglePermission?.(rIdx, "right", pIdx, e.currentTarget.checked)
-                        }
+                        checked={isChecked(p)}
+                        onChange={(e) => onTogglePermission?.(rIdx, p, e.currentTarget.checked)}
                       />
                       <span style={{ color: "#000", fontSize: 14 }}>{p}</span>
                     </label>
                   ))}
                 </div>
-              ) : null}
+
+                {/* Right column */}
+                {right.length ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {right.map((p, pIdx) => (
+                      <label key={`R-${p}-${pIdx}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked(p)}
+                          onChange={(e) => onTogglePermission?.(rIdx, p, e.currentTarget.checked)}
+                        />
+                        <span style={{ color: "#000", fontSize: 14 }}>{p}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
