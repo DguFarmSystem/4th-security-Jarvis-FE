@@ -403,7 +403,6 @@ export const mockRoles = [
           { "resources": ["trusted_cluster"], "verbs": ["list", "create", "read", "update", "delete"] },
           { "resources": ["remote_cluster"], "verbs": ["list", "create", "read", "update", "delete"] },
           { "resources": ["token"], "verbs": ["list", "create", "read", "update", "delete"] }
-          // …중략 없이 계속…
         ]
       },
       "deny": {}
