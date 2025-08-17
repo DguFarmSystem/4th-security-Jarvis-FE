@@ -1,23 +1,34 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 
 interface UpdateUserModalProps {
   username?: string;
-  email?: string;
-  role?: string;
-  onSave?: (updated: { username: string; email: string; role: string }) => void;
+  role?: string; // 쉼표로 구분된 문자열 혹은 단일 역할명
+  allRoles?: string[]; // 선택 가능한 역할 목록(옵션)
+  onSave?: (updated: { username: string; role: string }) => void;
+  onCancel?: () => void;
 }
 
 export const UpdateUserModal = ({
   username = "",
-  role = "basic-user",
+  role = "",
+  allRoles = [],
   onSave,
+  onCancel,
 }: UpdateUserModalProps) => {
+  const [name, setName] = useState(username);
+  // 단일 선택 UI로 단순화 (기존 구조 유지)
+  const [selectedRole, setSelectedRole] = useState(role);
+
+  const roleOptions = useMemo(() => {
+    const base = Array.from(new Set([role, ...allRoles].filter(Boolean)));
+    return base.length ? base : ["access", "editor", "basic-user"]; // 기본 옵션
+  }, [allRoles, role]);
+
   return (
     <div
       style={{
         width: "488px",
-        height: "356px",
-        position: "relative",
+        minHeight: "320px",
         borderRadius: "40px",
         border: "1px solid rgba(0, 0, 0, 0.60)",
         background: "#FFF",
@@ -26,38 +37,56 @@ export const UpdateUserModal = ({
         fontFamily: "var(--font-pretendard)",
         display: "flex",
         flexDirection: "column",
+        gap: 16,
       }}
     >
-      <h2 style={{ fontSize: 20, fontWeight: 700, textAlign: "center", marginBottom: 8 }}>
+      <h2
+        style={{
+          fontSize: 20,
+          fontWeight: 700,
+          textAlign: "center",
+          marginBottom: 8,
+        }}
+      >
         Update User
       </h2>
 
-      {/* 구분선 */}
-      <div
-        style={{
-          position: "absolute",
-          top: 55,
-          left: 0,
-          right: 0,
-          height: 1,
-          background: "#B9B9B9",
-        }}
-      />
+      <label style={labelStyle}>
+        Username
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={inputStyle}
+        />
+      </label>
 
-      {/* 폼 필드 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
-        <label style={labelStyle}>
-          User
-          <input defaultValue={username} style={inputStyle} />
-        </label>
-        <label style={{ ...labelStyle, marginTop: "auto", marginBottom: 47 }}>
-          Role
-          <select defaultValue={role} style={inputStyle}>
-            <option value="basic-user">Basic User</option>
-            <option value="editor">Editor</option>
-            <option value="access">Access</option>
-          </select>
-        </label>
+      <label style={labelStyle}>
+        Role
+        <select
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+          style={{ ...inputStyle, height: 36 }}
+        >
+          {roleOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: "auto" }}>
+        <button onClick={onCancel}>Cancel</button>
+        <button
+          onClick={() =>
+            onSave?.({
+              username: name.trim(),
+              role: selectedRole.trim(),
+            })
+          }
+        >
+          Save
+        </button>
       </div>
     </div>
   );

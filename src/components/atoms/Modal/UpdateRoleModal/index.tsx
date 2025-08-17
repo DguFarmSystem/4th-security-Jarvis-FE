@@ -7,7 +7,6 @@ interface UpdateRoleModalProps {
 export const UpdateRoleModal = ({
   roleName = "",
   permissions = [],
-  onSave,
 }: UpdateRoleModalProps) => {
   return (
     <div
