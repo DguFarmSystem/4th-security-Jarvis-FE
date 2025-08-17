@@ -48,10 +48,33 @@ export const ResourceTrendsChart = ({ nodeSessions, dbSessions, appSessions }: P
     ],
   };
 
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { position: "top" as const },
+      title: { display: false },
+    },
+    elements: {
+      bar: {
+        borderRadius: 6,       // 막대 꼭짓점 둥글게
+        borderSkipped: false,  // 위쪽 생략 없이 둥글게
+      },
+    },
+  };
+
   return (
-    <div style={{ border: "1px solid #ddd", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
+    <div
+      style={{
+        border: "1px solid #ddd",
+        borderRadius: "20px 20px 0 0",
+        background: "#BBFFE4",
+        boxShadow: "0 0 10px 2px rgba(0, 0, 0, 0.15) inset",
+        padding: "16px",
+        marginBottom: "20px",
+      }}
+    >
       <h3 style={{ fontWeight: "bold", marginBottom: "16px" }}>System Status Overview</h3>
-      <Bar data={data} options={{ responsive: true }} />
+      <Bar data={data} options={options} />
     </div>
   );
 };
