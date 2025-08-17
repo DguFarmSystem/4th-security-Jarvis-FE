@@ -4,61 +4,34 @@ type LogMode = "audits" | "sessions" | "activities";
 
 interface LogProps {
   mode?: LogMode;
+  data: Record<string, any>[]; // 외부에서 데이터를 주입받음
 }
 
-export const Log = ({ mode = "audits" }: LogProps) => {
-
-  const headers = 
-  mode === "audits"
-    ? ["Time", "User", "Event", "Details"]
-    : mode === "sessions"
-    ? ["User", "Server", "Duration"]
-    : ["Time", "Event", "Details"];
+export const Log = ({ mode = "audits", data }: LogProps) => {
+  const headers =
+    mode === "audits"
+      ? ["Time", "User", "Event"]
+      : mode === "sessions"
+      ? ["User", "Server", "Duration"]
+      : ["Time", "Event"];
 
   const columnWidths =
-  mode === "audits"
-    ? ["200px", "147px", "122px", "auto"]
-    : mode === "sessions"
-    ? ["200px", "147px", "auto"]
-    : ["200px", "200px", "auto"];
-
-  const data = 
-    mode == "audits"
-    ? [
-        { time: "2024-04-21 11:30", user: "john.doe", event: "login", details: "john.doe" },
-        { time: "2024-04-21 10:55", user: "john.doe", event: "update", details: "john.doe" },
-        { time: "2024-04-21 10:22", user: "jane.smith", event: "access", details: "john.doe" },
-        { time: "2024-04-20 16:17", user: "error", event: "error", details: "john.doe" },
-        { time: "2024-04-21 10:22", user: "john.doe", event: "access", details: "john.doe" },
-        { time: "2024-04-21 10:22", user: "jane.smith", event: "access", details: "john.doe" },
-        { time: "2024-04-20 16:17", user: "error", event: "error", details: "john.doe" },
-        { time: "2024-04-21 10:22", user: "john.doe", event: "access", details: "john.doe" },
-      ]
-    : mode == "sessions"
-      ? [
-        { user: "john.doe", server: "web-server", duration: "01:23:45" },
-        { user: "jane.smith", server: "db-server", duration: "00:12:07" },
-        { user: "john.doe", server: "web-server", duration: "04:55:22" },
-        { user: "john.doe", server: "web-server", duration: "01:23:45" },
-        { user: "jane.smith", server: "db-server", duration: "00:12:07" },
-        { user: "john.doe", server: "web-server", duration: "04:55:22" },
-      ]
-      : [
-        { time: "2024-04-21 11:30", event: "Login", details: "127.0.0.1" },
-        { time: "2024-04-21 10:55", event: "Session Start", details: "database-2" },
-        { time: "2024-04-21 10:22", event: "Login", details: "127.0.0.1" },
-        { time: "2024-04-20 16:17", event: "Session Start", details: "app-server" },
-        { time: "2024-04-21 11:30", event: "Login", details: "127.0.0.1" },
-        { time: "2024-04-21 10:55", event: "Session Start", details: "database-2" },
-        { time: "2024-04-21 10:22", event: "Login", details: "127.0.0.1" },
-        { time: "2024-04-20 16:17", event: "Session Start", details: "app-server" },
-      ];
+    mode === "audits"
+      ? ["200px", "147px", "122px"]
+      : mode === "sessions"
+      ? ["200px", "147px", "auto"]
+      : ["200px", "200px"];
 
   return (
     <div
       style={{
         width: "921px",
-        height: mode === "audits" ? "422px" : mode === "sessions" ? "260px" : "920px",
+        height:
+          mode === "audits"
+            ? "422px"
+            : mode === "sessions"
+            ? "260px"
+            : "920px",
         flexShrink: 0,
         borderRadius: "15px",
         border: "1px solid #737373",
@@ -85,7 +58,7 @@ export const Log = ({ mode = "audits" }: LogProps) => {
                   fontSize: "20px",
                   fontWeight: 700,
                   lineHeight: "normal",
-                  verticalAlign: "middle", 
+                  verticalAlign: "middle",
                   borderBottom: "1px solid var(--color-gray-300)",
                 }}
               >
@@ -98,15 +71,15 @@ export const Log = ({ mode = "audits" }: LogProps) => {
           {data.map((row, index) => (
             <tr key={index} style={{ height: "48px" }}>
               {headers.map((key) => (
-               <td
-                    key={key}
-                    style={{
-                      ...cellStyle,
-                      borderBottom: "1px solid var(--color-gray-300)",
-                    }}
-                  >
-                    {(row as any)[key.toLowerCase()]}
-                  </td>
+                <td
+                  key={key}
+                  style={{
+                    ...cellStyle,
+                    borderBottom: "1px solid var(--color-gray-300)",
+                  }}
+                >
+                  {(row as any)[key.toLowerCase()] ?? "-"}
+                </td>
               ))}
             </tr>
           ))}
@@ -124,5 +97,5 @@ const cellStyle: React.CSSProperties = {
   lineHeight: "normal",
   paddingTop: "12px",
   paddingBottom: "12px",
-  verticalAlign: "middle", 
+  verticalAlign: "middle",
 };
