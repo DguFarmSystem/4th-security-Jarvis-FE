@@ -1,23 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { SummaryPanel } from "./index";
+import { ResourceSummary } from ".";
 
-const meta: Meta<typeof SummaryPanel> = {
-  title: "Components/SummaryPanel",
-  component: SummaryPanel,
+const meta: Meta<typeof ResourceSummary> = {
+  title: "Components/ResourceSummary",
+  component: ResourceSummary,
 };
 
 export default meta;
 
-type Story = StoryObj<typeof SummaryPanel>;
+type Story = StoryObj<typeof ResourceSummary>;
 
-export const SystemStatus: Story = {
+export const Default: Story = {
   args: {
-    mode: "system",
-  },
-};
-
-export const ResourceSummary: Story = {
-  args: {
-    mode: "resource",
+    nodeCount: 3,
+    dbCount: 2,
+    appCount: 5,
   },
 };
