@@ -66,9 +66,8 @@ export const ResourceTrendsChart = ({ nodeSessions, dbSessions, appSessions }: P
     <div
       style={{
         border: "1px solid #ddd",
-        borderRadius: "20px 20px 0 0",
-        background: "#BBFFE4",
-        boxShadow: "0 0 10px 2px rgba(0, 0, 0, 0.15) inset",
+        borderRadius: "40px",
+        boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.15)",
         padding: "16px",
         marginBottom: "20px",
       }}
