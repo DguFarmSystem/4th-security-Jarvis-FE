@@ -186,8 +186,8 @@ export default function ManagementPage() {
       {/* 사용자 수정 모달 (빈 값/행 편집 둘 다 커버) */}
       {isUpdateUserModalOpen && selectedUser && (
         <UpdateUserModal
-          username={selectedUser.username}
-          role={selectedUser.role}
+          username={selectedUser?.username ?? ""}
+          role={selectedUser?.role ?? ""}
           allRoles={allRoleNames} // 드롭다운 옵션 (없어도 동작)
           onCancel={() => {
             setUpdateUserModalOpen(false);
