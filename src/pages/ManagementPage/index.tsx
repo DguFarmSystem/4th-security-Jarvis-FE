@@ -160,12 +160,21 @@ export default function ManagementPage() {
 
       {/* 역할 관리 */}
       <RoleManagement
-        roles={roles.map((r) => ({
-          role: r.metadata?.name ?? "unknown",
-          permissions: extractPermissionsFromRoles([r]),
-        }))}
-        onCreateRole={() => setShowCreateModal(true)}
-      />
+  roles={roles.map((r) => ({
+    role: r.metadata?.name ?? "unknown",
+    permissions: extractPermissionsFromRoles([r]),
+  }))}
+  onCreateRole={() => setShowCreateModal(true)}
+  onDeleteRole={(index) => {
+    const role = roles[index];
+     setSelectedRole({
+      role: role.metadata?.name ?? "unknown",
+      permissions: extractPermissionsFromRoles([role]), 
+    });
+    setDeletingTarget("role");
+    setDeleteModalOpen(true);
+  }}
+/>
 
       {/* 삭제 확인 모달 */}
       {isDeleteModalOpen && (

@@ -202,21 +202,21 @@ export const handlers = [
 
   const roleName = body.metadata.name;
 
-  const index = mockRoles.findIndex(
+  const index = roles.findIndex(
     (r) => r.metadata?.name === roleName
   );
 
   if (index !== -1) {
     // 기존 역할 업데이트
-    mockRoles[index] = {
-      ...mockRoles[index],
+    roles[index] = {
+      ...roles[index],
       ...body,
       metadata: {
-        ...mockRoles[index].metadata,
+        ...roles[index].metadata,
         ...body.metadata,
       },
       spec: {
-        ...mockRoles[index].spec,
+        ...roles[index].spec,
         ...body.spec,
       },
     };
@@ -228,6 +228,21 @@ export const handlers = [
   }
     })
   ),
+
+  // DELETE /api/v1/roles/:rolename - 역할 삭제
+...paths("/api/v1/roles/:rolename").map((url) =>
+  http.delete(url, async ({ params }) => {
+    const { rolename } = params as { rolename: string };
+    const index = roles.findIndex(r => r.metadata?.name === rolename);
+
+    if (index !== -1) {
+      roles.splice(index, 1);
+      return HttpResponse.json({ message: `Role '${rolename}' deleted successfully.` });
+    } else {
+      return new HttpResponse(`Role '${rolename}' not found`, { status: 404 });
+    }
+  })
+),
 
    // GET /api/v1/resources/nodes
    ...paths("/api/v1/resources/nodes").map((url) =>

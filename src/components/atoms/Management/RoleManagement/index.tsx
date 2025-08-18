@@ -1,4 +1,5 @@
 import Button from "../../Button";
+import { TrashIcon } from "../../../../assets/icons/TrashIcon";
 
 type Permission = string;
 
@@ -15,6 +16,7 @@ interface RoleManagementProps {
   roles?: RoleRow[];
   onCreateRole?: () => void;
   onTogglePermission?: (roleIndex: number, permission: Permission, checked: boolean) => void;
+  onDeleteRole?: (index: number) => void;
 }
 
 /** 내부 유틸: 1차원 배열을 2열로 분할 */
@@ -39,6 +41,7 @@ export function RoleManagement({
   roles = DEFAULT_ROLES,
   onCreateRole,
   onTogglePermission,
+  onDeleteRole,
 }: RoleManagementProps) {
   return (
     <div
@@ -111,7 +114,7 @@ export function RoleManagement({
               key={`${r.role}-${rIdx}`}
               style={{
                 display: "grid",
-                gridTemplateColumns: "200px 1fr",
+                gridTemplateColumns: "200px 1fr 40px",
                 padding: "12px 8px",
                 borderBottom:
                   rIdx === roles.length - 1 ? "none" : "1px solid var(--color-gray-400, #D3D3D3)",
@@ -158,6 +161,22 @@ export function RoleManagement({
                   </div>
                 ) : null}
               </div>
+
+               {/* Delete button */}
+    <div style={{ textAlign: "right" }}>
+      <button
+        aria-label="delete role"
+        onClick={() => onDeleteRole?.(rIdx)} // 상위에서 모달 띄우도록 위임
+        style={{
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: 0,
+        }}
+      >
+        <TrashIcon />
+      </button>
+    </div>
             </div>
           );
         })}
