@@ -31,7 +31,7 @@ function App() {
         <LoginModal isOpen={true} onClose={() => {}} />
       ) : (
         <div style={{ display: "flex" }}>
-          <Tab title="Admin Console" />
+          <Tab />
           <div style={{ flex: 1, padding: "24px" }}>
             <Routes>
               {/* 기본 경로를 대시보드로 리디렉션 */}

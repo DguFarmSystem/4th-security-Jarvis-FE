@@ -9,7 +9,7 @@ interface TabProps {
   title?: string;
 }
 
-export const Tab = ({ title = "Team name" }: TabProps) => {
+export const Tab = ({ title = "" }: TabProps) => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
   const menus = [
@@ -78,6 +78,7 @@ export const Tab = ({ title = "Team name" }: TabProps) => {
     transition: "background-color 0.2s ease-in-out",
     width: "100%", // 부모 너비에 맞춤
     boxSizing: "border-box", // padding 포함
+    color: "#FFF",
   }}
 >
   {icon}
