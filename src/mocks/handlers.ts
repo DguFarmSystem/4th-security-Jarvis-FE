@@ -186,48 +186,43 @@ export const handlers = [
     })
   ),
 
-  // PUT /api/v1/roles - 역할 업데이트
-   ...paths("/api/v1/roles").map((url) =>
-    http.put(url, async ({ request }) => {
-      const body = await request.json() as any;
+ // POST /api/v1/roles - 역할 생성 (백엔드 CreateRole와 동일)
+...paths("/api/v1/roles").map((url) =>
+  http.post(url, async ({ request }) => {
+    const body = (await request.json()) as any;
+    if (!body?.metadata?.name) {
+      return new HttpResponse("요청 본문(Role)이 잘못되었습니다: metadata.name 필요", { status: 400 });
+    }
+    // 이미 존재하면 409로 막아도 되지만, 여기선 단순 생성
+    roles.push(body);
+    return HttpResponse.json(body, { status: 201 });
+  })
+),
 
-  // 필수 필드 체크
-  if (!body || typeof body !== 'object') {
-    return new HttpResponse("Invalid request body", { status: 400 });
-  }
+// PUT /api/v1/roles - 업서트 (백엔드 UpsertRole와 동일)
+...paths("/api/v1/roles").map((url) =>
+  http.put(url, async ({ request }) => {
+    const body = (await request.json()) as any;
+    if (!body?.metadata?.name) {
+      return new HttpResponse("Role name is required in metadata.name", { status: 400 });
+    }
+    const roleName = body.metadata.name;
+    const idx = roles.findIndex((r) => r.metadata?.name === roleName);
 
-  if (!body.metadata || typeof body.metadata.name !== 'string') {
-    return new HttpResponse("Role name is required in metadata.name", { status: 400 });
-  }
-
-  const roleName = body.metadata.name;
-
-  const index = roles.findIndex(
-    (r) => r.metadata?.name === roleName
-  );
-
-  if (index !== -1) {
-    // 기존 역할 업데이트
-    roles[index] = {
-      ...roles[index],
-      ...body,
-      metadata: {
-        ...roles[index].metadata,
-        ...body.metadata,
-      },
-      spec: {
-        ...roles[index].spec,
-        ...body.spec,
-      },
-    };
-    return HttpResponse.json({ message: `Role '${roleName}' updated.` });
-  } else {
-    // 새 역할 추가
-    mockRoles.push(body);
-    return HttpResponse.json({ message: `Role '${roleName}' created.` });
-  }
-    })
-  ),
+    if (idx !== -1) {
+      roles[idx] = {
+        ...roles[idx],
+        ...body,
+        metadata: { ...roles[idx].metadata, ...body.metadata },
+        spec: { ...roles[idx].spec, ...body.spec },
+      };
+      return HttpResponse.json(roles[idx], { status: 200 });
+    } else {
+      roles.push(body);
+      return HttpResponse.json(body, { status: 200 }); // upsert 성공
+    }
+  })
+),
 
   // DELETE /api/v1/roles/:rolename - 역할 삭제
 ...paths("/api/v1/roles/:rolename").map((url) =>

@@ -12,6 +12,7 @@ import { RoleManagement } from "../../components/atoms/Management/RoleManagement
 import { ConfirmDeleteModal } from "../../components/atoms/Modal/ConfirmDeleteModal";
 import { UpdateUserModal } from "../../components/atoms/Modal/UpdateUserModal";
 import { CreateRoleModal } from "../../components/atoms/Modal/CreateRoleModal";
+// import { UpdateRoleModal } from "../../components/atoms/Modal/UpdateRoleModal";
 
 import { api } from "../../utils/axios";
 
@@ -51,7 +52,12 @@ export default function ManagementPage() {
   const [selectedRole, setSelectedRole] = useAtom(selectedRoleAtom);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
+  const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);;
+  const [newRoleName, setNewRoleName] = useState("");
+
+  // const [showEditRoleModal, setShowEditRoleModal] = useState(false);
+  // const [editRoleName, setEditRoleName] = useState("");
+  // const [editRoleChecked, setEditRoleChecked] = useState<string[]>([]);
 
   // 리스트 조회
   const fetchUsers = async () => {
@@ -101,6 +107,37 @@ export default function ManagementPage() {
       console.error("역할 삭제 실패", err);
     }
   };
+
+  const createRole = async (name: string, permissions: string[]) => {
+    const rules = permissions.map((perm) => {
+      const [res, verb] = perm.split(":").map((s) => s.trim());
+      return { resources: [res], verbs: [verb] };
+    });
+    await api.post("/roles", {
+      kind: "role",
+      version: "v7",
+      metadata: {
+        name,
+        description: "Created from UI",
+        labels: { "teleport.internal/resource-type": "custom" },
+        revision: "auto-gen",
+      },
+      spec: { allow: { rules } },
+    });
+  };
+
+  // const upsertRole = async (name: string, permissions: string[]) => {
+  //   const rules = permissions.map((perm) => {
+  //     const [res, verb] = perm.split(":").map((s) => s.trim());
+  //     return { resources: [res], verbs: [verb] };
+  //   });
+  //   await api.put("/roles", {
+  //     kind: "role",
+  //     version: "v7",
+  //     metadata: { name },
+  //     spec: { allow: { rules } },
+  //   });
+  // };
 
   const handleUserUpdate = async (updated: { username: string; role: string }) => {
     try {
@@ -210,42 +247,26 @@ export default function ManagementPage() {
 
       {/* 역할 생성 모달 */}
       {showCreateModal && (
-        <CreateRoleModal
+         <CreateRoleModal
           permissions={allPermissions}
           selected={newRolePermissions}
+          roleName={newRoleName}
+          onChangeRoleName={setNewRoleName}
           onChange={setNewRolePermissions}
           onCancel={() => {
             setShowCreateModal(false);
+            setNewRoleName("");
             setNewRolePermissions([]);
           }}
           onSubmit={async () => {
             try {
-              const newRoleName = prompt("Enter role name") ?? "new-role";
-              await api.put("/roles", {
-                kind: "role",
-                version: "v7",
-                metadata: {
-                  name: newRoleName,
-                  description: "Newly created role",
-                  labels: {
-                    "teleport.internal/resource-type": "custom",
-                  },
-                  revision: "auto-gen",
-                },
-                spec: {
-                  allow: {
-                    rules: newRolePermissions.map((perm) => {
-                      const [res, verb] = perm.split(":").map((s) => s.trim());
-                      return { resources: [res], verbs: [verb] };
-                    }),
-                  },
-                },
-              });
+              await createRole(newRoleName.trim(), newRolePermissions);
               setShowCreateModal(false);
+              setNewRoleName("");
               setNewRolePermissions([]);
               fetchRoles();
-            } catch (err) {
-              console.error("역할 생성 실패", err);
+            } catch (e) {
+              console.error("역할 생성 실패", e);
             }
           }}
         />

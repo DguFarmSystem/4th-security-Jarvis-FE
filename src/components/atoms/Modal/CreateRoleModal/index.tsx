@@ -1,6 +1,8 @@
 type CreateRoleModalProps = {
   permissions: string[];
   selected: string[];
+   roleName: string;
+  onChangeRoleName: (name: string) => void;
   onChange: (selected: string[]) => void;
   onSubmit: () => void;
   onCancel: () => void;
@@ -9,6 +11,8 @@ type CreateRoleModalProps = {
 export const CreateRoleModal = ({
   permissions,
   selected,
+  roleName,
+  onChangeRoleName,
   onChange,
   onSubmit,
   onCancel,
@@ -29,6 +33,16 @@ export const CreateRoleModal = ({
 
         {/* 상단 가로선 */}
         <div style={dividerStyle} />
+        {/* 역할명 입력 */}
+        <label style={labelStyle}>
+          Role Name
+          <input
+            value={roleName}
+            onChange={(e) => onChangeRoleName(e.target.value)}
+            placeholder="ex) basic-reader"
+            style={inputStyle}
+          />
+        </label>
 
         {/* 스크롤 영역 */}
         <div style={scrollAreaStyle}>
@@ -108,6 +122,10 @@ const dividerStyle: React.CSSProperties = {
   background: "#B9B9B9",
   marginBottom: 12,
 };
+
+const labelStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 6, fontSize: 14, color: "#000" };
+
+const inputStyle: React.CSSProperties = { height: 36, borderRadius: 8, border: "1px solid #D3D3D3", padding: "0 12px" };
 
 /* 스크롤 영역: flex:1 + minHeight:0 조합 중요 */
 const scrollAreaStyle: React.CSSProperties = {
