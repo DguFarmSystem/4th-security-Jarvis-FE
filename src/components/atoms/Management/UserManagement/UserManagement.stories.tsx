@@ -11,7 +11,7 @@ const meta: Meta<typeof UserManagement> = {
     // 기본 데이터는 컴포넌트 내부 DEFAULT_USERS 사용
   },
   argTypes: {
-    onAddUser: { action: "add_user_clicked" },
+    onUpdateUser: { action: "updtae_user_clicked" },
     onDelete: { action: "delete_clicked" },
   },
   tags: ["autodocs"],
