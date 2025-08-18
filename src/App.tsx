@@ -14,7 +14,7 @@ function App() {
 
   useEffect(() => {
     api
-      .get("/users")
+      .get("/users", { withCredentials: true })
       .then(() => {
         setAuthenticated(true);
       })
