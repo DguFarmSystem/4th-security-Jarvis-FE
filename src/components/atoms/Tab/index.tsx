@@ -12,7 +12,7 @@ interface TabProps {
 
 export const Tab = ({ title = "" }: TabProps) => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
-   const navigate = useNavigate(); 
+   const navigate = useNavigate();
 
   const menus = [
     { name: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
@@ -63,10 +63,13 @@ export const Tab = ({ title = "" }: TabProps) => {
           gap: "10px",
         }}
       >
-        {menus.map(({ name, icon }) => (
+        {menus.map(({ name, icon, path }) => (
           <div
   key={name}
-  onClick={() => setActiveMenu(name)}
+ onClick={() => {
+              setActiveMenu(name);
+              navigate(path); 
+            }}
   style={{
     height: "55px",
     display: "flex",
