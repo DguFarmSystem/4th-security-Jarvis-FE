@@ -5,6 +5,8 @@ import { ResourceType } from "../../components/atoms/Filters";
 import type { ResourceOption } from "../../components/atoms/Filters";
 import { api } from "../../utils/axios";
 import { mockApps, mockDatabases } from "../../mocks/mockData";
+import { getCurrentUsernameFromCookie } from "../../utils/auth";
+import { connectToSSHWebSocket } from "../../utils/ws";
 
 export default function ResourcePage() {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -18,13 +20,25 @@ export default function ResourcePage() {
     const fetchResources = async () => {
       try {
         const res = await api.get("/resources/nodes");
+         const currentUser = getCurrentUsernameFromCookie();
+         if (!currentUser) {
+      console.warn("⚠️ 로그인 유저 정보를 쿠키에서 가져오지 못했습니다.");
+      return;
+    }
+          const servers: Resource[] = res.data.map((node: any) => {
+      const nodeHost = node.spec.hostname ?? node.metadata.name;
 
-        const servers: Resource[] = res.data.map((node: any) => ({
-          name: node.spec.hostname ?? node.metadata.name,
-          type: "서버",
-          actionLabel: "연결",
-        }));
-
+      return {
+        name: nodeHost,
+        type: "서버",
+        actionLabel: "연결",
+        nodeHost,
+        loginUser: currentUser,
+        onActionClick: () => {
+          connectToSSHWebSocket(nodeHost, currentUser);
+        },
+      };
+    });
         const databases: Resource[] = mockDatabases.map((db: any) => ({
           name: db.metadata?.name ?? "Unknown DB",
           type: "데이터베이스",
