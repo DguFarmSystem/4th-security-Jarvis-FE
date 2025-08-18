@@ -12,7 +12,7 @@ import { RoleManagement } from "../../components/atoms/Management/RoleManagement
 import { ConfirmDeleteModal } from "../../components/atoms/Modal/ConfirmDeleteModal";
 import { UpdateUserModal } from "../../components/atoms/Modal/UpdateUserModal";
 import { CreateRoleModal } from "../../components/atoms/Modal/CreateRoleModal";
-// import { UpdateRoleModal } from "../../components/atoms/Modal/UpdateRoleModal";
+import { UpdateRoleModal } from "../../components/atoms/Modal/UpdateRoleModal";
 
 import { api } from "../../utils/axios";
 
@@ -55,9 +55,9 @@ export default function ManagementPage() {
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);;
   const [newRoleName, setNewRoleName] = useState("");
 
-  // const [showEditRoleModal, setShowEditRoleModal] = useState(false);
-  // const [editRoleName, setEditRoleName] = useState("");
-  // const [editRoleChecked, setEditRoleChecked] = useState<string[]>([]);
+   const [showEditRoleModal, setShowEditRoleModal] = useState(false);
+  const [editRoleName, setEditRoleName] = useState("");
+  const [editRoleChecked, setEditRoleChecked] = useState<string[]>([]);
 
   // 리스트 조회
   const fetchUsers = async () => {
@@ -126,18 +126,18 @@ export default function ManagementPage() {
     });
   };
 
-  // const upsertRole = async (name: string, permissions: string[]) => {
-  //   const rules = permissions.map((perm) => {
-  //     const [res, verb] = perm.split(":").map((s) => s.trim());
-  //     return { resources: [res], verbs: [verb] };
-  //   });
-  //   await api.put("/roles", {
-  //     kind: "role",
-  //     version: "v7",
-  //     metadata: { name },
-  //     spec: { allow: { rules } },
-  //   });
-  // };
+  const upsertRole = async (name: string, permissions: string[]) => {
+     const rules = permissions.map((perm) => {
+    const [res, verb] = perm.split(":").map((s) => s.trim());
+       return { resources: [res], verbs: [verb] };
+     });
+     await api.put("/roles", {
+       kind: "role",
+       version: "v7",
+       metadata: { name },
+       spec: { allow: { rules } },
+     });
+   };
 
   const handleUserUpdate = async (updated: { username: string; role: string }) => {
     try {
@@ -271,6 +271,30 @@ export default function ManagementPage() {
           }}
         />
       )}
+
+      {showEditRoleModal && (
+  <UpdateRoleModal
+    roleName={editRoleName}
+    selectedPermissions={editRoleChecked}
+    allPermissions={allPermissions}
+    onCancel={() => {
+      setShowEditRoleModal(false);
+      setEditRoleName("");
+      setEditRoleChecked([]);
+    }}
+    onSave={async () => {
+      try {
+        await upsertRole(editRoleName, editRoleChecked);
+        setShowEditRoleModal(false);
+        setEditRoleName("");
+        setEditRoleChecked([]);
+        fetchRoles();
+      } catch (e) {
+        console.error("역할 업데이트 실패", e);
+      }
+    }}
+  />
+)}
     </div>
   );
 }

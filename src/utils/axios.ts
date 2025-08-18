@@ -44,14 +44,14 @@ api.interceptors.response.use(
   }
 );
 
-// GET 결과가 빈 배열이면 MSW 시작 후 한 번 더 같은 요청을 해보는 헬퍼
-export async function getWithMockFallback<T = any>(url: string) {
-  const res = await api.get<T>(url);
-  const data: any = res.data;
-  if (Array.isArray(data) && data.length === 0) {
-    await startMSW();
-    const res2 = await api.get<T>(url);
-    return res2.data;
-  }
-  return data;
-}
+// // GET 결과가 빈 배열이면 MSW 시작 후 한 번 더 같은 요청을 해보는 헬퍼
+// export async function getWithMockFallback<T = any>(url: string) {
+//   const res = await api.get<T>(url);
+//   const data: any = res.data;
+//   if (Array.isArray(data) && data.length === 0) {
+//     await startMSW();
+//     const res2 = await api.get<T>(url);
+//     return res2.data;
+//   }
+//   return data;
+// }
