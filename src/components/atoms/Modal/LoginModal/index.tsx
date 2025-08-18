@@ -9,7 +9,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleGitHubLogin = () => {
-    window.location.href = 'https://jarvis-indol-omega.vercel.app/';
+    window.location.href = 'https://openswdev.duckdns.org/login';
   };
 
   return (
