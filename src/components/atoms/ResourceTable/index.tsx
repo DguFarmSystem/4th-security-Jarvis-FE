@@ -6,6 +6,8 @@ export interface Resource {
   type: string;
   actionLabel?: string; // e.g. "연결"
   onActionClick?: () => void;
+   nodeHost?: string; // WebSocket 연결에 필요한 호스트
+  loginUser?: string; // 로그인 사용자
 }
 
 interface ResourceTableProps {
