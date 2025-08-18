@@ -20,23 +20,24 @@ const Button: React.FC<ButtonProps> = ({
   children,
   variant,
   active = false,
-  ...props
+  style,
+  ...rest
 }) => {
-  // --- 공통 스타일 정의 ---
+  // 공통 스타일
   const baseStyles: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     padding: '16px 8px',
     border: '1px solid transparent',
-    boxShadow: '0 4px 10px 0 rgba(0, 0, 0, 0.1)', // Drop Shadow
-    color: '#FFFFFF', // 기본 텍스트 색상
+    boxShadow: '0 4px 10px 0 rgba(0, 0, 0, 0.1)',
+    color: '#FFFFFF',
     cursor: 'pointer',
     transition: 'all 0.2s ease-in-out',
     fontWeight: 'bold',
   };
 
-  // --- Variant 별 스타일 정의 ---
+  // Variant 별 스타일
   const variantStyles: { [key in ButtonVariant]: React.CSSProperties } = {
     login: {
       width: '425px',
@@ -59,7 +60,7 @@ const Button: React.FC<ButtonProps> = ({
       border: '1px solid #D3D3D3',
     },
     toggle: {
-      width: active ? '80px' : '71px', // InActive 상태일 때 너비가 더 김
+      width: active ? '80px' : '71px',
       height: '33px',
       borderRadius: '10px',
       backgroundColor: active ? 'rgba(211, 211, 211, 0.4)' : 'rgba(91, 165, 255, 0.4)',
@@ -91,23 +92,23 @@ const Button: React.FC<ButtonProps> = ({
     },
   };
 
-  const disabledStyles: React.CSSProperties = props.disabled
+  const disabledStyles: React.CSSProperties = rest.disabled
     ? {
         opacity: 0.5,
         cursor: 'not-allowed',
       }
     : {};
 
-  // --- 스타일 병합 ---
+  // 최종 스타일 병합
   const combinedStyles: React.CSSProperties = {
     ...baseStyles,
     ...variantStyles[variant],
     ...disabledStyles,
-    ...props.style, // 외부에서 주입된 스타일이 있다면 덮어쓰기
+    ...style, // 외부 style이 최종 우선순위
   };
 
   return (
-    <button type="button" style={combinedStyles} {...props}>
+    <button {...rest} type={rest.type ?? "button"} style={combinedStyles}>
       {children}
     </button>
   );
