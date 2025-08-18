@@ -17,6 +17,7 @@ interface RoleManagementProps {
   onCreateRole?: () => void;
   onTogglePermission?: (roleIndex: number, permission: Permission, checked: boolean) => void;
   onDeleteRole?: (index: number) => void;
+  onEditRole?: (index: number) => void;
 }
 
 /** 내부 유틸: 1차원 배열을 2열로 분할 */
@@ -42,6 +43,7 @@ export function RoleManagement({
   onCreateRole,
   onTogglePermission,
   onDeleteRole,
+  onEditRole,
 }: RoleManagementProps) {
   return (
     <div
@@ -161,22 +163,35 @@ export function RoleManagement({
                   </div>
                 ) : null}
               </div>
-
-               {/* Delete button */}
-    <div style={{ textAlign: "right" }}>
-      <button
-        aria-label="delete role"
-        onClick={() => onDeleteRole?.(rIdx)} // 상위에서 모달 띄우도록 위임
-        style={{
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          padding: 0,
-        }}
-      >
-        <TrashIcon />
-      </button>
-    </div>
+{/* Actions: Update + Delete */}
+<div style={{ textAlign: "right", display: "flex", flexDirection: "column", gap: 8 }}>
+  <button
+    onClick={() => onEditRole?.(rIdx)} // 역할 수정 트리거
+    style={{
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+      padding: 0,
+      color: "#007BFF",
+      fontSize: 13,
+      textDecoration: "underline",
+    }}
+  >
+    Update
+  </button>
+  <button
+    aria-label="delete role"
+    onClick={() => onDeleteRole?.(rIdx)}
+    style={{
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+      padding: 0,
+    }}
+  >
+    <TrashIcon />
+  </button>
+</div>
             </div>
           );
         })}
