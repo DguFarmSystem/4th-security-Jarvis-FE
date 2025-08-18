@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardIcon } from "../../../assets/icons/DashboardIcon";
 import { ProfileIcon } from "../../../assets/icons/ProfileIcon";
 import { ResourceIcon } from "../../../assets/icons/ResourceIcon";
@@ -11,13 +12,14 @@ interface TabProps {
 
 export const Tab = ({ title = "" }: TabProps) => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+   const navigate = useNavigate(); 
 
   const menus = [
-    { name: "Dashboard", icon: <DashboardIcon /> },
-    { name: "Profile", icon: <ProfileIcon /> },
-    { name: "Resource", icon: <ResourceIcon /> },
-    { name: "Session", icon: <SessionIcon /> },
-    { name: "Management", icon: <ManagementIcon /> },
+    { name: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
+    { name: "Profile", icon: <ProfileIcon />, path: "/profile" },
+    { name: "Resource", icon: <ResourceIcon />, path: "/resource" },
+    { name: "Session", icon: <SessionIcon />, path: "/sessions" },
+    { name: "Management", icon: <ManagementIcon />, path: "/management" },
   ];
 
   return (
