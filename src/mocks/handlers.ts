@@ -170,7 +170,7 @@ export const handlers = [
 
   const index = mockUsers.findIndex(u => u.metadata.name === username);
   if (index !== -1) {
-    mockUsers.splice(index, 1);
+    users.splice(index, 1);
     return HttpResponse.json({ message: `User '${username}' deleted successfully.` });
   } else {
     return new HttpResponse(`User '${username}' not found`, { status: 404 });
