@@ -5,7 +5,7 @@ import { ResourceType } from "../../components/atoms/Filters";
 import type { ResourceOption } from "../../components/atoms/Filters";
 import { api } from "../../utils/axios";
 import { mockApps, mockDatabases } from "../../mocks/mockData";
-import { getCurrentUsernameFromCookie } from "../../utils/auth";
+// import { getCurrentUsernameFromCookie } from "../../utils/auth";
 import { connectToSSHWebSocket } from "../../utils/ws";
 
 export default function ResourcePage() {
