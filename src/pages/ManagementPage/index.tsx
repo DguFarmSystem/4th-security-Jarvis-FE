@@ -211,6 +211,12 @@ export default function ManagementPage() {
     setDeletingTarget("role");
     setDeleteModalOpen(true);
   }}
+  onEditRole={(index) => {
+    const role = roles[index];
+    setEditRoleName(role.metadata?.name ?? "unknown");
+    setEditRoleChecked(extractPermissionsFromRoles([role]));
+    setShowEditRoleModal(true);
+  }}
 />
 
       {/* 삭제 확인 모달 */}
