@@ -17,6 +17,19 @@ function parseJwt(token: string): any | null {
 
 export function getCurrentUsernameFromCookie(): string | null {
   const token = getCookie("auth_token");
-  const decoded = token ? parseJwt(token) : null;
+
+  if (!token) {
+    console.warn("❌ auth_token 쿠키 없음");
+    return null;
+  }
+
+  const decoded = parseJwt(token);
+
+  console.log("🔍 JWT 디코딩 결과:", decoded); // ✅ 여기 로그 추가
+
+  if (!decoded?.username) {
+    console.warn("❌ JWT payload에 'username' 필드 없음");
+  }
+
   return decoded?.username ?? null;
 }
