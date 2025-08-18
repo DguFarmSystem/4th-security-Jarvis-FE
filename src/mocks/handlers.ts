@@ -14,11 +14,15 @@ let nodes = [...mockNodes];
 let events = [...mockEvents];
 let sessions = [...mockSessions];
 
-interface UserUpdatePayload {
-  spec: {
-    roles: string[] | string;
-  };
-  [key: string]: any;
+// interface UserUpdatePayload {
+//   spec: {
+//     roles: string[] | string;
+//   };
+//   [key: string]: any;
+// }
+
+interface UpdateUserRequest {
+  roles: string[];
 }
 
 export interface TeleportRolePayload {
@@ -131,22 +135,34 @@ export const handlers = [
 
     // PUT /api/v1/users/:username - 사용자 업데이트
 ...paths("/api/v1/users/:username").map((url) =>
-    http.put(url, async ({ params, request }) => {
-      const { username } = params;
-   const body = await request.json() as UserUpdatePayload;
-  const updatedRoles = body.spec.roles;
+  http.put(url, async ({ params, request }) => {
+    const { username } = params as { username: string };
 
-      // mockUsers 내부에서 해당 유저 수정
-  const user = mockUsers.find(u => u.metadata.name === username);
-  if (user) {
-    user.spec.roles = Array.isArray(updatedRoles) ? updatedRoles : [updatedRoles];
-    return HttpResponse.json({ message: `User '${username}' updated successfully.` });
-  } else {
-    return new HttpResponse(`User '${username}' not found`, { status: 404 });
-  }
-    })
-  ),
+    // 요청 형식 엄격: { roles: string[] } 만 허용
+    const body = (await request.json()) as UpdateUserRequest;
+    if (!body || !Array.isArray(body.roles)) {
+      return new HttpResponse(
+        "요청 본문이 잘못되었습니다: { roles: string[] } 형식이어야 합니다.",
+        { status: 400 }
+      );
+    }
 
+    const updatedRoles = body.roles.map(String);
+
+    const idx = users.findIndex((u) => u?.metadata?.name === username);
+    if (idx < 0) {
+      return new HttpResponse(`User '${username}' not found`, { status: 404 });
+    }
+
+    // mock 스키마 그대로 필드만 업데이트
+    users[idx].spec.roles = updatedRoles;
+
+    // 백엔드와 유사한 성공 응답
+    return HttpResponse.json({
+      message: `User '${username}' updated successfully.`,
+    });
+  })
+),
 // DELETE /api/v1/users/:username - 사용자 삭제
 ...paths("/api/v1/users/:username").map((url) =>
     http.delete(url, async ({ params }) => {

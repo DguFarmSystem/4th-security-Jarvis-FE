@@ -53,6 +53,7 @@ export default function ManagementPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRolePermissions, setNewRolePermissions] = useState<string[]>([]);
 
+  // 리스트 조회
   const fetchUsers = async () => {
     try {
       const { data } = await api.get("/users");
@@ -76,6 +77,7 @@ export default function ManagementPage() {
     fetchRoles();
   }, []);
 
+  // 삭제/업데이트
   const handleUserDelete = async () => {
     if (!selectedUser) return;
     try {
@@ -103,7 +105,7 @@ export default function ManagementPage() {
   const handleUserUpdate = async (updated: { username: string; role: string }) => {
     try {
       await api.put(`/users/${updated.username}`, {
-        roles: [updated.role],
+        roles: [updated.role], // 백엔드/MSW와 동일 형식
       });
       setUpdateUserModalOpen(false);
       setSelectedUser(null);
@@ -113,10 +115,10 @@ export default function ManagementPage() {
     }
   };
 
-  const extractPermissionsFromRoles = (roles: Role[]): string[] => {
+  // 권한 문자열 추출
+  const extractPermissionsFromRoles = (rs: Role[]): string[] => {
     const permissionsSet = new Set<string>();
-
-    roles.forEach((role) => {
+    rs.forEach((role) => {
       role.spec?.allow?.rules?.forEach((rule) => {
         rule.resources.forEach((res) => {
           rule.verbs.forEach((verb) => {
@@ -125,26 +127,30 @@ export default function ManagementPage() {
         });
       });
     });
-
     return Array.from(permissionsSet);
   };
 
   const allPermissions = extractPermissionsFromRoles(roles);
+  const allRoleNames = roles.map((r) => r.metadata?.name).filter(Boolean) as string[];
 
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "48px" }}>
+      {/* 사용자 관리 */}
       <UserManagement
         users={users.map((u) => ({
           user: u.metadata.name,
-          email: "",
           role: u.spec.roles.join(", "),
         }))}
-        onAddUser={() => {}}
+        // 헤더 "+ Update User" 버튼 → 빈 값으로 모달 오픈
+        onUpdateUser={() => {
+          setSelectedUser({ username: "", role: "" });
+          setUpdateUserModalOpen(true);
+        }}
+        // 행 삭제 → 삭제 모달 오픈
         onDelete={(index) => {
           const user = users[index];
           setSelectedUser({
             username: user.metadata.name,
-            email: "",
             role: user.spec.roles.join(", "),
           });
           setDeletingTarget("user");
@@ -152,16 +158,16 @@ export default function ManagementPage() {
         }}
       />
 
+      {/* 역할 관리 */}
       <RoleManagement
-  roles={roles.map((r) => ({
-    role: r.metadata?.name ?? "unknown",
-    permissions: extractPermissionsFromRoles([r]),
-    // 필요 시 체크된 권한 제공
-    // checkedPermissions: extractPermissionsFromRoles([r])
-  }))}
-  onCreateRole={() => setShowCreateModal(true)}
-/>
+        roles={roles.map((r) => ({
+          role: r.metadata?.name ?? "unknown",
+          permissions: extractPermissionsFromRoles([r]),
+        }))}
+        onCreateRole={() => setShowCreateModal(true)}
+      />
 
+      {/* 삭제 확인 모달 */}
       {isDeleteModalOpen && (
         <ConfirmDeleteModal
           title={`Delete ${deletingTarget === "user" ? "User" : "Role"}`}
@@ -177,16 +183,23 @@ export default function ManagementPage() {
         />
       )}
 
+      {/* 사용자 수정 모달 (빈 값/행 편집 둘 다 커버) */}
       {isUpdateUserModalOpen && selectedUser && (
         <UpdateUserModal
           username={selectedUser.username}
           role={selectedUser.role}
+          allRoles={allRoleNames} // 드롭다운 옵션 (없어도 동작)
+          onCancel={() => {
+            setUpdateUserModalOpen(false);
+            setSelectedUser(null);
+          }}
           onSave={({ username, role }) => {
             handleUserUpdate({ username, role });
           }}
         />
       )}
 
+      {/* 역할 생성 모달 */}
       {showCreateModal && (
         <CreateRoleModal
           permissions={allPermissions}
@@ -199,7 +212,6 @@ export default function ManagementPage() {
           onSubmit={async () => {
             try {
               const newRoleName = prompt("Enter role name") ?? "new-role";
-
               await api.put("/roles", {
                 kind: "role",
                 version: "v7",
@@ -215,15 +227,11 @@ export default function ManagementPage() {
                   allow: {
                     rules: newRolePermissions.map((perm) => {
                       const [res, verb] = perm.split(":").map((s) => s.trim());
-                      return {
-                        resources: [res],
-                        verbs: [verb],
-                      };
+                      return { resources: [res], verbs: [verb] };
                     }),
                   },
                 },
               });
-
               setShowCreateModal(false);
               setNewRolePermissions([]);
               fetchRoles();

@@ -7,7 +7,7 @@ type UserRow = { user: string; role: string; };
 interface UserManagementProps {
     title?: string;
     users?: UserRow[];
-    onAddUser?: () => void;
+    onUpdateUser?: () => void;
     onDelete?: (index: number) => void;
 }
 
@@ -20,7 +20,7 @@ const DEFAULT_USERS: UserRow[] = [
 export function UserManagement({
   title = "User Management",
   users = DEFAULT_USERS,
-  onAddUser,
+  onUpdateUser,
   onDelete,
 }: UserManagementProps) {
   return (
@@ -57,10 +57,10 @@ export function UserManagement({
         </h3>
 
         <Button
-          variant="addUser"
-          onClick={onAddUser}
+          variant="updateUser"
+          onClick={onUpdateUser}
         >
-            + Add User
+            + Update User
             </Button>
       </div>
 

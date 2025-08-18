@@ -6,7 +6,6 @@ export const isDeleteConfirmModalOpenAtom = atom(false);
 
 export const selectedUserAtom = atom<{
   username: string;
-  email: string;
   role: string;
 } | null>(null);
 
