@@ -19,7 +19,7 @@ const meta: Meta<typeof Button> = {
         'auth-cancel',
         'toggle',
         'connect',
-        'addUser',
+        'updateUser',
         'createRole',
         'save',
       ] as ButtonVariant[],
@@ -78,8 +78,8 @@ export const Connect: Story = {
 export const AddUser: Story = {
   args: {
     ...baseArgs,
-    variant: 'addUser',
-    children: '+ Add User',
+    variant: 'updateUser',
+    children: '+ Update User',
   },
 };
 
