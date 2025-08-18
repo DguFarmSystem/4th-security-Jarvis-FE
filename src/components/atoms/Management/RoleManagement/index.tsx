@@ -4,14 +4,9 @@ type Permission = string;
 
 export type RoleRow = {
   role: string;
-  /**
-   * "resource: verb" 형태 등으로 평탄화된 권한 리스트
-   * 예: ["user: read", "node: list", ...]
-   */
+  /** 평탄화된 권한 리스트 */
   permissions: Permission[];
-  /**
-   * 체크된 권한 목록(옵션). 미제공 시 모든 권한이 체크된 것으로 렌더.
-   */
+  /** 체크된 권한 목록(옵션). 없으면 전부 체크된 상태로 렌더 */
   checkedPermissions?: Permission[];
 };
 
@@ -19,17 +14,7 @@ interface RoleManagementProps {
   title?: string;
   roles?: RoleRow[];
   onCreateRole?: () => void;
-  /**
-   * 체크 상태 변경 콜백
-   * @param roleIndex 변경된 역할 인덱스
-   * @param permission 권한 문자열
-   * @param checked 체크 여부
-   */
-  onTogglePermission?: (
-    roleIndex: number,
-    permission: Permission,
-    checked: boolean
-  ) => void;
+  onTogglePermission?: (roleIndex: number, permission: Permission, checked: boolean) => void;
 }
 
 /** 내부 유틸: 1차원 배열을 2열로 분할 */
@@ -65,10 +50,15 @@ export function RoleManagement({
         opacity: 0.5,
         padding: "16px 20px",
         fontFamily: "var(--font-pretendard)",
+        // 고정 높이 + 내부 스크롤
+        height: 460,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       {/* 헤더 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, flexShrink: 0 }}>
         <h3 style={{ margin: 0, color: "#000", fontSize: 18, fontWeight: 700 }}>{title}</h3>
         <Button variant="createRole" onClick={onCreateRole}>
           + Create Role
@@ -82,6 +72,7 @@ export function RoleManagement({
           width: "100%",
           background: "var(--color-gray-400, #D3D3D3)",
           marginBottom: 8,
+          flexShrink: 0,
         }}
       />
 
@@ -95,14 +86,21 @@ export function RoleManagement({
           fontWeight: 700,
           padding: "10px 8px",
           borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
+          flexShrink: 0,
         }}
       >
         <div>Role</div>
         <div>Permissions</div>
       </div>
 
-      {/* 목록 */}
-      <div>
+      {/* 목록 (스크롤 영역) */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+        }}
+      >
         {roles.map((r, rIdx) => {
           const [left, right] = splitInTwo(r.permissions);
           const isChecked = (perm: string) =>
