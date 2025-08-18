@@ -12,6 +12,7 @@ export const ConfirmDeleteModal = ({
   onCancel,
 }: ConfirmDeleteModalProps) => {
   return (
+     <div style={modalWrapperStyle}>
     <div
       style={{
         width: 400,
@@ -34,6 +35,7 @@ export const ConfirmDeleteModal = ({
         </button>
       </div>
     </div>
+    </div>
   );
 };
 
@@ -45,3 +47,16 @@ const buttonStyle = (color: "red" | "gray"): React.CSSProperties => ({
   color: "#fff",
   cursor: "pointer",
 });
+
+const modalWrapperStyle: React.CSSProperties = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "rgba(0,0,0,0.3)", // 어두운 오버레이
+  zIndex: 1000,
+};

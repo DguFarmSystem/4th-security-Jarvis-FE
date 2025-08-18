@@ -9,6 +9,7 @@ export const UpdateRoleModal = ({
   permissions = [],
 }: UpdateRoleModalProps) => {
   return (
+    <div style={modalWrapperStyle}>
     <div
       style={{
         width: "488px",
@@ -56,6 +57,7 @@ export const UpdateRoleModal = ({
         ))}
       </div>
     </div>
+    </div>
   );
 };
 
@@ -76,4 +78,17 @@ const inputStyle: React.CSSProperties = {
   padding: "0 12px",
   fontSize: "14px",
   color: "#000",
+};
+
+const modalWrapperStyle: React.CSSProperties = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "rgba(0,0,0,0.3)", // 어두운 오버레이
+  zIndex: 1000,
 };
