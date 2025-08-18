@@ -35,7 +35,8 @@ export default function ResourcePage() {
           nodeHost,
           loginUser,
           onActionClick: () => {
-            connectToSSHWebSocket(nodeHost, loginUser);
+            const socket = connectToSSHWebSocket(nodeHost, loginUser);
+            setTerminalSocket(socket);
           },
         };
       });
