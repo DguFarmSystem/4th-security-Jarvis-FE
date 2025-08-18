@@ -18,27 +18,24 @@ export default function ResourcePage() {
 
   useEffect(() => {
     const fetchResources = async () => {
-      try {
-        const res = await api.get("/resources/nodes");
-         const currentUser = getCurrentUsernameFromCookie();
-         if (!currentUser) {
-      console.warn("⚠️ 로그인 유저 정보를 쿠키에서 가져오지 못했습니다.");
-      return;
-    }
-          const servers: Resource[] = res.data.map((node: any) => {
-      const nodeHost = node.spec.hostname ?? node.metadata.name;
+       try {
+      const res = await api.get("/resources/nodes");
 
-      return {
-        name: nodeHost,
-        type: "서버",
-        actionLabel: "연결",
-        nodeHost,
-        loginUser: currentUser,
-        onActionClick: () => {
-          connectToSSHWebSocket(nodeHost, currentUser);
-        },
-      };
-    });
+      const servers: Resource[] = res.data.map((node: any) => {
+        const nodeHost = node.spec.hostname ?? node.metadata.name;
+        const loginUser = "minij02"; // 기본 SSH 계정 지정
+
+        return {
+          name: nodeHost,
+          type: "서버",
+          actionLabel: "연결",
+          nodeHost,
+          loginUser,
+          onActionClick: () => {
+            connectToSSHWebSocket(nodeHost, loginUser);
+          },
+        };
+      });
         const databases: Resource[] = mockDatabases.map((db: any) => ({
           name: db.metadata?.name ?? "Unknown DB",
           type: "데이터베이스",
