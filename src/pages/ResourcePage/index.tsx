@@ -7,6 +7,7 @@ import { api } from "../../utils/axios";
 import { mockApps, mockDatabases } from "../../mocks/mockData";
 // import { getCurrentUsernameFromCookie } from "../../utils/auth";
 import { connectToSSHWebSocket } from "../../utils/ws";
+import TerminalComponent from "../../components/Terminal";
 
 export default function ResourcePage() {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -15,6 +16,8 @@ export default function ResourcePage() {
     { label: "데이터베이스", checked: false },
     { label: "애플리케이션", checked: true },
   ]);
+
+  const [terminalSocket, setTerminalSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -72,6 +75,12 @@ export default function ResourcePage() {
     <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
       <ResourceType options={selectedTypes} onToggle={handleToggle} />
       <ResourceTable columns={["이름", "종류", "태그"]} resources={resources} />
+       {/* ✅ WebSocket 연결되면 터미널 표시 */}
+    {terminalSocket && (
+      <div style={{ marginTop: 32 }}>
+        <TerminalComponent socket={terminalSocket} />
+      </div>
+    )}
     </div>
   );
 }
