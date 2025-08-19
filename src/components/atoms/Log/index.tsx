@@ -20,7 +20,7 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
     mode === "audits"
       ? ["200px", "147px", "122px"]
       : mode === "sessions"
-      ? ["200px", "147px", "auto", "100px"] // 버튼 열 너비 추가
+      ? ["200px", "147px", "auto", "100px"] 
       : ["200px", "200px"];
 
   return (
