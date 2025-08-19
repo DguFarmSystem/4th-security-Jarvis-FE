@@ -84,14 +84,18 @@ export default function SessionPage() {
 
   useEffect(() => {
     api.get("/audit/events").then((res) => {
-      const rawEvents = res.data;
-      const audits: AuditLog[] = rawEvents.map((event: any) => ({
-        time: new Date(event.time).toLocaleString(),
-        user: event.user ?? "unknown",
-        event: event.event ?? "unknown",
-      }));
-      setAuditLogs(audits);
-    });
+  const rawEvents = res.data;
+
+  const audits: AuditLog[] = rawEvents
+    .filter((event: any) => event.event !== "cert.create") // cert.create 제외
+    .map((event: any) => ({
+      time: new Date(event.time).toLocaleString(),
+      user: event.user ?? event.identity?.user ?? "unknown",
+      event: event.event ?? "unknown",
+    }));
+
+  setAuditLogs(audits);
+});
 
     api.get("/audit/session").then((res) => {
       const rawSessions = res.data;
