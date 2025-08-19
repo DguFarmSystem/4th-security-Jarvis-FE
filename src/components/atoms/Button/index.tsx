@@ -9,7 +9,8 @@ export type ButtonVariant =
   | 'connect'
   | 'updateUser'
   | 'createRole'
-  | 'save';
+  | 'save'
+  | 'view';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;
@@ -86,6 +87,12 @@ const Button: React.FC<ButtonProps> = ({
     },
     save: {
       width: '139px',
+      height: '43px',
+      borderRadius: '10px',
+      backgroundColor: '#5BA5FF',
+    },
+     view: {
+      width: '125px',
       height: '43px',
       borderRadius: '10px',
       backgroundColor: '#5BA5FF',
