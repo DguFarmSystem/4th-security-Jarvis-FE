@@ -121,3 +121,11 @@ export const Toggle: Story = {
     );
   },
 };
+
+ export const View: Story = {
+  args: {
+    ...baseArgs,
+    variant: 'view',
+    children: 'View',
+  },
+};

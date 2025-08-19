@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "../Button";
 
 type LogMode = "audits" | "sessions" | "activities";
 
@@ -12,14 +13,14 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
     mode === "audits"
       ? ["Time", "User", "Event"]
       : mode === "sessions"
-      ? ["User", "Server", "Duration"]
+      ? ["User", "Server", "Duration", "View"]
       : ["Time", "Event"];
 
   const columnWidths =
     mode === "audits"
       ? ["200px", "147px", "122px"]
       : mode === "sessions"
-      ? ["200px", "147px", "auto"]
+      ? ["200px", "147px", "auto", "100px"] // 버튼 열 너비 추가
       : ["200px", "200px"];
 
   return (
@@ -65,6 +66,24 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
                 {title}
               </th>
             ))}
+            {mode === "sessions" && (
+              <th
+                style={{
+                  width: "100px",
+                  textAlign: "left",
+                  paddingBottom: "14px",
+                  color: "#000",
+                  fontFamily: "var(--font-pretendard)",
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  lineHeight: "normal",
+                  verticalAlign: "middle",
+                  borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
+                }}
+              >
+                Action
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -81,6 +100,22 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
                   {(row as any)[key.toLowerCase()] ?? "-"}
                 </td>
               ))}
+              {mode === "sessions" && (
+                <td>
+                  <Button
+                    variant="view"
+                    onClick={() => {
+                      if (row.sessionid) {
+                        row.onView?.(row.sessionid);
+                      } else {
+                        alert("세션 ID가 존재하지 않습니다.");
+                      }
+                    }}
+                  >
+                    View
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
