@@ -10,20 +10,15 @@ import { Tab } from "./components/atoms/Tab";
 
 function App() {
   const [isAuthenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+    useEffect(() => {
     api
       .get("/users", { withCredentials: true })
-      .then(() => {
-        setAuthenticated(true);
-      })
-      .catch(() => {
-        setAuthenticated(false);
-      })
-      .finally(() => setLoading(false));
+      .then(() => setAuthenticated(true))
+      .catch(() => setAuthenticated(false));
   }, []);
 
+  if (isAuthenticated === null) return null; // 로딩 중일 때
   return (
       <BrowserRouter>
       {!isAuthenticated ? (
