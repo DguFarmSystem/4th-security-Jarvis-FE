@@ -34,7 +34,7 @@ function App() {
               <Route path="/resource" element={<ResourcePage />} />
               <Route path="/sessions" element={<SessionPage />} />
               <Route path="/management" element={<ManagementPage />} />
-              {/* 존재하지 않는 경로 → 대시보드로 이동 */}
+              {/* 존재하지 않는 경로 -> 대시보드로 이동 */}
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
           </div>
