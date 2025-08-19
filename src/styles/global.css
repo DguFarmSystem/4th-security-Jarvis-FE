@@ -23,7 +23,7 @@
   width: 1350px;
   height: 100%;
   background: var(--color-white);
-  border-radius: 16px; /* 탭과 동일한 border-radius */
+  border-radius: 40px; /* 탭과 동일한 border-radius */
   display: flex;
   overflow: hidden;
   box-shadow: var(--shadow-tab); /* 기존 그림자 변수 활용 */
