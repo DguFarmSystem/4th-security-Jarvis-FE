@@ -73,11 +73,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   logo: {
     position: 'absolute',
-    bottom: 70 + 65 + 216, // 버튼 하단 기준으로부터 216px 위
+    bottom: 9,
     transform: 'translateY(-100%)',
     width: 443,
     height: 164,
     flexShrink: 0,
-    aspectRatio: '208 / 77', // CSS 속성으로 적용 (최신 브라우저 지원)
+    aspectRatio: '208 / 77', 
   },
 };
