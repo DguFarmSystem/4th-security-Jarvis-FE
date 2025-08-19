@@ -1,4 +1,6 @@
 import React from 'react';
+import Button from '../../Button';
+import GitHubLogo from '../../assets/GitHub.svg';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -15,13 +17,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <button style={styles.closeButton} onClick={onClose} aria-label="닫기">×</button>
-        <h2 style={styles.title}>GitHub 로그인</h2>
-        <p style={styles.description}>GitHub 계정으로 로그인하여 서비스를 시작하세요.</p>
-        <button style={styles.githubButton} onClick={handleGitHubLogin}>
-          <GitHubIcon />
-          <span style={{ marginLeft: 8 }}>Continue with GitHub</span>
+        <button style={styles.closeButton} onClick={onClose} aria-label="닫기">
+          ×
         </button>
+
+        {/* GitHub 로고 */}
+        <img src={GitHubLogo} alt="GitHub Logo" style={styles.logo} />
+
+        {/* 로그인 버튼 */}
+        <Button variant="login" onClick={handleGitHubLogin} style={styles.loginButton}>
+          Continue with GitHub
+        </Button>
       </div>
     </div>
   );
@@ -29,65 +35,54 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
 export default LoginModal;
 
-// GitHub 아이콘 (SVG)
-const GitHubIcon = () => (
-  <svg height="20" width="20" viewBox="0 0 16 16" fill="white">
-    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54...Z" />
-  </svg>
-);
-
 // 스타일 정의
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
     position: 'fixed',
-    top: 0, left: 0,
-    width: '100vw', height: '100vh',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex', justifyContent: 'center', alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1000,
   },
   modal: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    width: '90%',
-    maxWidth: 400,
-    padding: '32px 24px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+    width: 520,
+    height: 524,
+    borderRadius: 40,
+    background: '#FFF',
+    boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.15)',
     position: 'relative',
-    textAlign: 'center',
-    fontFamily: '"Segoe UI", Helvetica, Arial, sans-serif',
-  },
-  title: {
-    fontSize: 22,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 24,
-  },
-  githubButton: {
-    backgroundColor: '#24292f',
-    color: '#fff',
-    border: 'none',
-    padding: '12px 20px',
-    borderRadius: 6,
-    fontSize: 14,
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    cursor: 'pointer',
-    transition: 'background 0.2s ease-in-out',
+    justifyContent: 'flex-end',
+    paddingBottom: 70,
+    boxSizing: 'border-box',
   },
   closeButton: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 24,
+    right: 24,
     background: 'transparent',
     border: 'none',
     fontSize: 24,
     color: '#999',
     cursor: 'pointer',
+  },
+  loginButton: {
+    margin: '0 auto',
+  },
+  logo: {
+    position: 'absolute',
+    bottom: 70 + 65 + 216, // 버튼 하단 기준으로부터 216px 위
+    transform: 'translateY(-100%)',
+    width: 443,
+    height: 164,
+    flexShrink: 0,
+    aspectRatio: '208 / 77', // CSS 속성으로 적용 (최신 브라우저 지원)
   },
 };
