@@ -29,7 +29,7 @@ function App() {
   return (
       <BrowserRouter>
       {!isAuthenticated ? (
-        <LoginModal isOpen={true} onClose={() => {}} />
+        <LoginModal isOpen={true} />
       ) : (
         <div style={{ display: "flex" }}>
           <Tab />
