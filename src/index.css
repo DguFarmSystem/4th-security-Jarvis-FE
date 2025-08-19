@@ -23,10 +23,10 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  background: linear-gradient(276deg, #5BA5FF 12.83%, #ABF1FF 53.52%, #BBFFE4 94.21%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
   min-height: 100vh;
 }
 
