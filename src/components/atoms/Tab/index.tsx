@@ -9,7 +9,7 @@ interface TabProps {
   title?: string;
 }
 
-export const Tab = ({ title = "" }: TabProps) => {
+export const Tab = ({ title = "4th-security-Jarvis" }: TabProps) => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
    const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ export const Tab = ({ title = "" }: TabProps) => {
         style={{
           paddingTop: "41px",
           paddingRight: "69px",
-          paddingBottom: "0px",
+          paddingBottom: "32px",
           paddingLeft: "82px",
         }}
       >
