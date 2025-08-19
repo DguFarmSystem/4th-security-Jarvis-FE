@@ -44,17 +44,17 @@ export default function SessionPage() {
       { withCredentials: true }
     );
 
-    eventSource.onmessage = (e) => {
-      try {
-        const payload = JSON.parse(e.data);
-        if (payload.type === "print") {
-          queueRef.current.push(payload);
-          processQueue();
-        }
-      } catch (err) {
-        console.error("SSE 파싱 에러:", err);
+     eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
+    try {
+      const payload = JSON.parse(e.data);
+      if (payload.type === "print") {
+        queueRef.current.push(payload);
+        processQueue();
       }
-    };
+    } catch (err) {
+      console.error("SSE 파싱 에러:", err);
+    }
+  });
 
     eventSource.onerror = (e) => {
       console.error("SSE 연결 오류:", e);
