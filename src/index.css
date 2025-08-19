@@ -1,3 +1,9 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,6 +29,9 @@ a:hover {
 }
 
 body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: linear-gradient(276deg, #5BA5FF 12.83%, #ABF1FF 53.52%, #BBFFE4 94.21%);
   background-attachment: fixed;
   background-repeat: no-repeat;

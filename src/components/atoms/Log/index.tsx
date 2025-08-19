@@ -81,7 +81,6 @@ export const Log = ({ mode = "audits", data }: LogProps) => {
                   borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
                 }}
               >
-                Action
               </th>
             )}
           </tr>

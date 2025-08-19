@@ -1,5 +1,11 @@
 @import "./theme.css";
 
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* 전역 유틸리티 클래스 */
 .bg-gradient-main {
   width: var(--layout-width);
@@ -9,14 +15,19 @@
 
 /* ===== 레이아웃 전용 ===== */
 .layout-wrapper {
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
   padding: 45px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--background-gradient-main);
   box-sizing: border-box;
+
+  /* 배경 설정 */
+  background: var(--background-gradient-main);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .layout-box {
