@@ -73,7 +73,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   logo: {
     position: 'absolute',
-    bottom: 9,
+    top: 9,
     transform: 'translateY(-100%)',
     width: 443,
     height: 164,
