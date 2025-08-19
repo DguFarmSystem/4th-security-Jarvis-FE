@@ -2,27 +2,27 @@ import React, { useMemo, useState } from "react";
 
 interface UpdateUserModalProps {
   username?: string;
-  role?: string; // 쉼표로 구분된 문자열 혹은 단일 역할명
+  roles?: string[]; // 쉼표로 구분된 문자열 혹은 단일 역할명
   allRoles?: string[]; // 선택 가능한 역할 목록(옵션)
-  onSave?: (updated: { username: string; role: string }) => void;
+  onSave?: (updated: { username: string; roles: string[] }) => void;
   onCancel?: () => void;
 }
 
 export const UpdateUserModal = ({
   username = "",
-  role = "",
+  roles = [],
   allRoles = [],
   onSave,
   onCancel,
 }: UpdateUserModalProps) => {
   const [name, setName] = useState(username);
-  // 단일 선택 UI로 단순화 (기존 구조 유지)
-  const [selectedRole, setSelectedRole] = useState(role);
+  
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(roles);
 
-  const roleOptions = useMemo(() => {
-    const base = Array.from(new Set([role, ...allRoles].filter(Boolean)));
-    return base.length ? base : ["access", "editor", "basic-user"]; // 기본 옵션
-  }, [allRoles, role]);
+   const roleOptions = useMemo(() => {
+    const base = Array.from(new Set([...selectedRoles, ...allRoles].filter(Boolean)));
+    return base.length ? base : ["access", "editor", "basic-user"];
+  }, [allRoles, selectedRoles]);
 
   return (
      <div style={modalWrapperStyle}>
@@ -62,10 +62,14 @@ export const UpdateUserModal = ({
       </label>
 
       <label style={labelStyle}>
-        Role
+        Roles
         <select
-          value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
+          value={selectedRoles}
+         onChange={(e) =>
+              setSelectedRoles(
+                Array.from(e.target.selectedOptions).map((opt) => opt.value)
+              )
+            }
           style={{ ...inputStyle, height: 36 }}
         >
           {roleOptions.map((opt) => (
@@ -82,7 +86,7 @@ export const UpdateUserModal = ({
           onClick={() =>
             onSave?.({
               username: name.trim(),
-              role: selectedRole.trim(),
+              roles: selectedRoles,
             })
           }
         >
