@@ -142,7 +142,7 @@ export default function ManagementPage() {
   const handleUserUpdate = async (updated: { username: string; roles: string[] }) => {
     try {
       await api.put(`/users/${updated.username}`, {
-        roles: [updated.roles], // 백엔드/MSW와 동일 형식
+        roles: updated.roles, // 백엔드/MSW와 동일 형식
       });
       setUpdateUserModalOpen(false);
       setSelectedUser(null);

@@ -4,10 +4,9 @@ import GitHubLogo from '../../../../assets/GitHub.svg';
 
 interface LoginModalProps {
   isOpen: boolean;
-  onClose: () => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
+const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   const handleGitHubLogin = () => {
@@ -17,10 +16,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <button style={styles.closeButton} onClick={onClose} aria-label="닫기">
-          ×
-        </button>
-
         {/* GitHub 로고 */}
         <img src={GitHubLogo} alt="GitHub Logo" style={styles.logo} />
 
