@@ -18,7 +18,7 @@ export const Default: Story = {
     return (
       <>
         <button onClick={() => setIsOpen(true)}>로그인 모달 열기</button>
-        <LoginModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+        <LoginModal isOpen={isOpen} />
       </>
     );
   },
