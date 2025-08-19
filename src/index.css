@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -23,6 +27,10 @@ a:hover {
 }
 
 body {
+  min-height: 100vh; /* 화면 이상일 때도 배경 유지됨 */
+  height: auto;
+  margin: 0;
+  padding: 0;
   background: linear-gradient(276deg, #5BA5FF 12.83%, #ABF1FF 53.52%, #BBFFE4 94.21%);
   background-attachment: fixed;
   background-repeat: no-repeat;

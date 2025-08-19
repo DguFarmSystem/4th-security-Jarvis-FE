@@ -7,6 +7,7 @@ import ResourcePage from "./pages/ResourcePage";
 import SessionPage from "./pages/SessionPage";
 import ManagementPage from "./pages/ManagementPage";
 import { Tab } from "./components/atoms/Tab";
+import "./index.css"
 import "../src/styles/global.css";
 
 function App() {
