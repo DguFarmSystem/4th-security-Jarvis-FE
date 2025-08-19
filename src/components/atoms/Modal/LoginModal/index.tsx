@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../../Button';
-import GitHubLogo from '../../../assets/GitHub.svg';
+import GitHubLogo from '../../../../assets/GitHub.svg';
 
 interface LoginModalProps {
   isOpen: boolean;
