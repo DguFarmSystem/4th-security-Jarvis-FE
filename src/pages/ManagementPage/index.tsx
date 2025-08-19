@@ -139,10 +139,10 @@ export default function ManagementPage() {
      });
    };
 
-  const handleUserUpdate = async (updated: { username: string; role: string }) => {
+  const handleUserUpdate = async (updated: { username: string; roles: string[] }) => {
     try {
       await api.put(`/users/${updated.username}`, {
-        roles: [updated.role], // 백엔드/MSW와 동일 형식
+        roles: [updated.roles], // 백엔드/MSW와 동일 형식
       });
       setUpdateUserModalOpen(false);
       setSelectedUser(null);
@@ -180,7 +180,7 @@ export default function ManagementPage() {
         }))}
         // 헤더 "+ Update User" 버튼 → 빈 값으로 모달 오픈
         onUpdateUser={() => {
-          setSelectedUser({ username: "", role: "" });
+          setSelectedUser({ username: "", roles: [] });
           setUpdateUserModalOpen(true);
         }}
         // 행 삭제 → 삭제 모달 오픈
@@ -188,7 +188,7 @@ export default function ManagementPage() {
           const user = users[index];
           setSelectedUser({
             username: user.metadata.name,
-            role: user.spec.roles.join(", "),
+            roles: user.spec.roles,
           });
           setDeletingTarget("user");
           setDeleteModalOpen(true);
@@ -239,14 +239,14 @@ export default function ManagementPage() {
       {isUpdateUserModalOpen && selectedUser && (
         <UpdateUserModal
           username={selectedUser?.username ?? ""}
-          role={selectedUser?.role ?? ""}
+          roles={selectedUser?.roles ?? ""}
           allRoles={allRoleNames} // 드롭다운 옵션 (없어도 동작)
           onCancel={() => {
             setUpdateUserModalOpen(false);
             setSelectedUser(null);
           }}
-          onSave={({ username, role }) => {
-            handleUserUpdate({ username, role });
+          onSave={({ username, roles }) => {
+            handleUserUpdate({ username, roles });
           }}
         />
       )}
