@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "../../Button";
+import { api } from "../../../../utils/axios";
 
 type AddResourceModalProps = {
   onSubmit: () => void;
@@ -20,11 +21,20 @@ export const AddResourceModal = ({ onSubmit, onCancel }: AddResourceModalProps) 
     }
   };
 
-  const handleGenerateToken = () => {
-    // TODO: 실제 API 호출로 교체
-    const fakeToken = Math.random().toString(36).substring(2, 12);
-    setToken(fakeToken);
-  };
+  const handleGenerateToken = async () => {
+  try {
+    const res = await api.post("/resources/nodes/token", {
+      ttl: "15m",
+      roles: ["node"],
+    });
+
+    const generatedToken = res.data.token;
+    setToken(generatedToken);
+  } catch (error) {
+    console.error("토큰 생성 실패:", error);
+    alert("토큰 생성 중 오류가 발생했습니다.");
+  }
+};
 
   return (
     <div style={modalWrapperStyle}>
@@ -130,16 +140,6 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 8,
   border: "1px solid #D3D3D3",
   padding: "0 12px",
-};
-
-const addButtonStyle: React.CSSProperties = {
-  background: "#007bff",
-  color: "#fff",
-  padding: "8px 12px",
-  borderRadius: 6,
-  border: "none",
-  cursor: "pointer",
-  fontWeight: 600,
 };
 
 const footerStyle: React.CSSProperties = {

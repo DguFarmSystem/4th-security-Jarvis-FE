@@ -10,6 +10,7 @@ export type ButtonVariant =
   | 'updateUser'
   | 'createRole'
   | 'addToken'
+  | 'addResource'
   | 'save'
   | 'view';
 
@@ -88,6 +89,12 @@ const Button: React.FC<ButtonProps> = ({
     },
     addToken: {
       width: '127px',
+      height: '43px',
+      borderRadius: '10px',
+      backgroundColor: '#5BA5FF',
+    },
+    addResource: {
+      width: '125px',
       height: '43px',
       borderRadius: '10px',
       backgroundColor: '#5BA5FF',
