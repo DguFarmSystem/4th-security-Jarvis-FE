@@ -7,11 +7,12 @@ import ResourcePage from "./pages/ResourcePage";
 import SessionPage from "./pages/SessionPage";
 import ManagementPage from "./pages/ManagementPage";
 import { Tab } from "./components/atoms/Tab";
+import "../src/styles/global.css";
 
 function App() {
   const [isAuthenticated, setAuthenticated] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     api
       .get("/users", { withCredentials: true })
       .then(() => setAuthenticated(true))
@@ -19,24 +20,29 @@ function App() {
   }, []);
 
   if (isAuthenticated === null) return null; // 로딩 중일 때
+
   return (
-      <BrowserRouter>
+    <BrowserRouter>
       {!isAuthenticated ? (
         <LoginModal isOpen={true} />
       ) : (
-        <div style={{ display: "flex" }}>
-          <Tab />
-          <div style={{ flex: 1, padding: "24px" }}>
-            <Routes>
-              {/* 기본 경로를 대시보드로 리디렉션 */}
-              <Route path="/" element={<Navigate to="/dashboard" />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/resource" element={<ResourcePage />} />
-              <Route path="/sessions" element={<SessionPage />} />
-              <Route path="/management" element={<ManagementPage />} />
-              {/* 존재하지 않는 경로 -> 대시보드로 이동 */}
-              <Route path="*" element={<Navigate to="/dashboard" />} />
-            </Routes>
+        <div className="layout-wrapper">
+          <div className="layout-box">
+            <div className="layout-tab">
+              <Tab />
+            </div>
+            <div className="layout-content">
+              <Routes>
+                {/* 기본 경로를 대시보드로 리디렉션 */}
+                <Route path="/" element={<Navigate to="/dashboard" />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/resource" element={<ResourcePage />} />
+                <Route path="/sessions" element={<SessionPage />} />
+                <Route path="/management" element={<ManagementPage />} />
+                {/* 존재하지 않는 경로 -> 대시보드로 이동 */}
+                <Route path="*" element={<Navigate to="/dashboard" />} />
+              </Routes>
+            </div>
           </div>
         </div>
       )}
