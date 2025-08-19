@@ -12,6 +12,6 @@ type Story = StoryObj<typeof UpdateUserModal>;
 export const Default: Story = {
   args: {
     username: "john.doe",
-    role: "editor",
+    roles: ["editor", "admin"],
   },
 };
