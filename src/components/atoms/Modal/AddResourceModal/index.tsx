@@ -7,11 +7,26 @@ type AddResourceModalProps = {
   onCancel: () => void;
 };
 
+type TokenResponse = {
+  token: string;
+  expires: string;
+  roles: string[];
+  commands: {
+    automatic_install: string;
+    manual_start: string;
+  };
+  instructions: {
+    step1: string;
+    step2: string;
+  };
+};
+
 const resourceTypes = ["서버", "데이터베이스", "애플리케이션"];
 
 export const AddResourceModal = ({ onSubmit, onCancel }: AddResourceModalProps) => {
   const [selectedTypes, setSelectedTypes] = useState<string[]>(["서버", "애플리케이션"]);
-  const [token, setToken] = useState<string>("");
+  // const [token, setToken] = useState<string>("");
+  const [tokenData, setTokenData] = useState<TokenResponse | null>(null);
 
   const handleToggleType = (type: string) => {
     if (selectedTypes.includes(type)) {
@@ -28,8 +43,7 @@ export const AddResourceModal = ({ onSubmit, onCancel }: AddResourceModalProps) 
       roles: ["node"],
     });
 
-    const generatedToken = res.data.token;
-    setToken(generatedToken);
+     setTokenData(res.data);
   } catch (error) {
     console.error("토큰 생성 실패:", error);
     alert("토큰 생성 중 오류가 발생했습니다.");
@@ -73,11 +87,18 @@ export const AddResourceModal = ({ onSubmit, onCancel }: AddResourceModalProps) 
         {/* 생성된 토큰 출력 필드 */}
         <input
           placeholder="Token ..."
-          value={token}
+          value={tokenData?.token || ""}
           readOnly
           style={{ ...inputStyle, marginTop: 12 }}
         />
 
+{tokenData && (
+  <div style={jsonBoxStyle}>
+    <pre style={{ margin: 0, fontSize: 12 }}>
+      {JSON.stringify(tokenData, null, 2)}
+    </pre>
+  </div>
+)}
         {/* 하단 버튼 */}
         <div style={footerStyle}>
           <button onClick={onCancel}>Cancel</button>
@@ -147,4 +168,16 @@ const footerStyle: React.CSSProperties = {
   justifyContent: "flex-end",
   gap: 10,
   marginTop: 16,
+};
+
+const jsonBoxStyle: React.CSSProperties = {
+  marginTop: 12,
+  padding: 12,
+  background: "#f9f9f9",
+  border: "1px solid #ccc",
+  borderRadius: 8,
+  maxHeight: 160,
+  overflowY: "auto",
+  fontFamily: "monospace",
+  whiteSpace: "pre-wrap",
 };

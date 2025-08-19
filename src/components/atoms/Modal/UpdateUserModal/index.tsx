@@ -24,76 +24,81 @@ export const UpdateUserModal = ({
     return base.length ? base : ["access", "editor", "basic-user"];
   }, [allRoles, selectedRoles]);
 
+  const handleToggleRole = (role: string) => {
+    if (selectedRoles.includes(role)) {
+      setSelectedRoles(selectedRoles.filter((r) => r !== role));
+    } else {
+      setSelectedRoles([...selectedRoles, role]);
+    }
+  };
+
   return (
-     <div style={modalWrapperStyle}>
-    <div
-      style={{
-        width: "488px",
-        minHeight: "320px",
-        borderRadius: "40px",
-        border: "1px solid rgba(0, 0, 0, 0.60)",
-        background: "#FFF",
-        boxShadow: "0 0 20px rgba(0,0,0,0.15)",
-        padding: "17px 46px",
-        fontFamily: "var(--font-pretendard)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 16,
-      }}
-    >
-      <h2
+    <div style={modalWrapperStyle}>
+      <div
         style={{
-          fontSize: 20,
-          fontWeight: 700,
-          textAlign: "center",
-          marginBottom: 8,
+          width: "488px",
+          minHeight: "320px",
+          borderRadius: "40px",
+          border: "1px solid rgba(0, 0, 0, 0.60)",
+          background: "#FFF",
+          boxShadow: "0 0 20px rgba(0,0,0,0.15)",
+          padding: "17px 46px",
+          fontFamily: "var(--font-pretendard)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
         }}
       >
-        Update User
-      </h2>
+        <h2
+          style={{
+            fontSize: 20,
+            fontWeight: 700,
+            textAlign: "center",
+            marginBottom: 8,
+          }}
+        >
+          Update User
+        </h2>
 
-      <label style={labelStyle}>
-        Username
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={inputStyle}
-        />
-      </label>
+        <label style={labelStyle}>
+          Username
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={inputStyle}
+          />
+        </label>
 
-      <label style={labelStyle}>
-        Roles
-        <select
-          value={selectedRoles}
-         onChange={(e) =>
-              setSelectedRoles(
-                Array.from(e.target.selectedOptions).map((opt) => opt.value)
-              )
+        <div style={{ ...labelStyle, gap: 8 }}>
+          Roles
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {roleOptions.map((role) => (
+              <label key={role} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={selectedRoles.includes(role)}
+                  onChange={() => handleToggleRole(role)}
+                />
+                {role}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: "auto" }}>
+          <button onClick={onCancel}>Cancel</button>
+          <button
+            onClick={() =>
+              onSave?.({
+                username: name.trim(),
+                roles: selectedRoles,
+              })
             }
-          style={{ ...inputStyle, height: 36 }}
-        >
-          {roleOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: "auto" }}>
-        <button onClick={onCancel}>Cancel</button>
-        <button
-          onClick={() =>
-            onSave?.({
-              username: name.trim(),
-              roles: selectedRoles,
-            })
-          }
-        >
-          Save
-        </button>
+          >
+            Save
+          </button>
+        </div>
       </div>
-    </div>
     </div>
   );
 };
