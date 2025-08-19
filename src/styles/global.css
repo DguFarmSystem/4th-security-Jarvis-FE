@@ -6,3 +6,36 @@
   height: var(--layout-height);
   background: var(--background-gradient-main);
 }
+
+/* ===== 레이아웃 전용 ===== */
+.layout-wrapper {
+  width: 100vw;
+  height: 100vh;
+  padding: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--background-gradient-main);
+  box-sizing: border-box;
+}
+
+.layout-box {
+  width: 1350px;
+  height: 100%;
+  background: var(--color-white);
+  border-radius: 16px; /* 탭과 동일한 border-radius */
+  display: flex;
+  overflow: hidden;
+  box-shadow: var(--shadow-tab); /* 기존 그림자 변수 활용 */
+}
+
+.layout-tab {
+  width: 220px; /* Tab 컴포넌트 폭 */
+  border-right: 1px solid var(--color-gray-400);
+}
+
+.layout-content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
