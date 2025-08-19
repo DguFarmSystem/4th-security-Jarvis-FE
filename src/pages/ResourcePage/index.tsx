@@ -26,7 +26,7 @@ export default function ResourcePage() {
 
       const servers: Resource[] = res.data.map((node: any) => {
         const nodeHost = node.spec.hostname ?? node.metadata.name;
-        const loginUser = "minij02"; // 기본 SSH 계정 지정
+        const loginUser = "root"; // 기본 SSH 계정 지정
 
         return {
           name: nodeHost,
