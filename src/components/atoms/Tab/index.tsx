@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardIcon } from "../../../assets/icons/DashboardIcon";
-import { ProfileIcon } from "../../../assets/icons/ProfileIcon";
 import { ResourceIcon } from "../../../assets/icons/ResourceIcon";
 import { SessionIcon} from "../../../assets/icons/SessionIcon";
 import { ManagementIcon } from "../../../assets/icons/ManagementIcon";
@@ -16,7 +15,6 @@ export const Tab = ({ title = "" }: TabProps) => {
 
   const menus = [
     { name: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-    { name: "Profile", icon: <ProfileIcon />, path: "/profile" },
     { name: "Resource", icon: <ResourceIcon />, path: "/resource" },
     { name: "Session", icon: <SessionIcon />, path: "/sessions" },
     { name: "Management", icon: <ManagementIcon />, path: "/management" },
