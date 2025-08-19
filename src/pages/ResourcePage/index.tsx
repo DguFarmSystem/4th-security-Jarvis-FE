@@ -7,6 +7,8 @@ import { api } from "../../utils/axios";
 import { mockApps, mockDatabases } from "../../mocks/mockData";
 // import { getCurrentUsernameFromCookie } from "../../utils/auth";
 import { connectToSSHWebSocket } from "../../utils/ws";
+import Button from "../../components/atoms/Button";
+import { AddResourceModal } from "../../components/atoms/Modal/AddResourceModal";
 import TerminalComponent from "../../components/Terminal";
 
 export default function ResourcePage() {
@@ -16,7 +18,7 @@ export default function ResourcePage() {
     { label: "데이터베이스", checked: false },
     { label: "애플리케이션", checked: true },
   ]);
-
+  const [showModal, setShowModal] = useState(false);
   const [terminalSocket, setTerminalSocket] = useState<WebSocket | null>(null);
 
   useEffect(() => {
@@ -74,9 +76,22 @@ export default function ResourcePage() {
 
   return (
     <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
+      <Button variant="addResource" onClick={() => setShowModal(true)}>
+      생성
+    </Button>
+
+    {showModal && (
+  <AddResourceModal
+    onSubmit={() => {
+      setShowModal(false); // 토큰 생성 후 모달 닫기
+      // 필요 시 리소스 목록 갱신 등 추가
+    }}
+    onCancel={() => setShowModal(false)} // 취소 시 닫기
+  />
+)}
       <ResourceType options={selectedTypes} onToggle={handleToggle} />
       <ResourceTable columns={["이름", "종류", "태그"]} resources={resources} />
-       {/* ✅ WebSocket 연결되면 터미널 표시 */}
+       {/* WebSocket 연결되면 터미널 표시 */}
     {terminalSocket && (
       <div style={{ marginTop: 32 }}>
         <TerminalComponent socket={terminalSocket} />

@@ -21,6 +21,8 @@ const meta: Meta<typeof Button> = {
         'connect',
         'updateUser',
         'createRole',
+        'addToken',
+        'addResource',
         'save',
       ] as ButtonVariant[],
     },
@@ -88,6 +90,22 @@ export const CreateRole: Story = {
     ...baseArgs,
     variant: 'createRole',
     children: '+ Create Role',
+  },
+};
+
+export const AddToken: Story = {
+  args: {
+    ...baseArgs,
+    variant: 'addToken',
+    children: '+ Add Token',
+  },
+};
+
+export const AddResource: Story = {
+  args: {
+    ...baseArgs,
+    variant: 'addResource',
+    children: '+ 리소스 추가',
   },
 };
 
