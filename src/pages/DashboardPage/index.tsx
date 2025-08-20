@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { ResourceSummary } from "../../components/atoms/SummaryPanel";
+import { ResourceSummary } from "@/components/atoms/SummaryPanel";
 import { ResourceTrendsChart } from "../../components/atoms/ResourceTrendsChart";
 import { api } from "@/utils/axios";
 import { mockAppSessions, mockDbSessions } from "../../mocks/mockData";
+import { DiscoverRedirectButton } from "@/components/RedirectButton";
 
 export default function DashboardPage() {
   const [nodeCount, setNodeCount] = useState(0);
@@ -33,6 +34,7 @@ export default function DashboardPage() {
 
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "32px" }}>
+      <DiscoverRedirectButton />
       <ResourceTrendsChart
         nodeSessions={sessions}
         dbSessions={mockDbSessions}

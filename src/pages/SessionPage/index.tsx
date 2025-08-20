@@ -1,10 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Log } from "../../components/atoms/Log";
 import { api } from "../../utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
+import FilterPanel from "@/components/atoms/FilterPanel"; 
 
 type AuditLog = {
-  time: string;
+  time: string;   // 표시용
+  user: string;
+  event: string;
+};
+
+type RawAudit = {
+  timeMs: number; // 필터용
   user: string;
   event: string;
 };
@@ -18,10 +25,15 @@ type SessionLog = {
 };
 
 export default function SessionPage() {
+  const [rawAudits, setRawAudits] = useState<RawAudit[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
   const [sessionOutput, setSessionOutput] = useState<string>("");
   const [currentSessionID, setCurrentSessionID] = useState<string | null>(null);
+
+  const [dateRange, setDateRange] = useState<string>("");
+  const [keyword, setKeyword] = useState<string>("");
+  const [eventType, setEventType] = useState<string>("All");
 
   const queueRef = useRef<any[]>([]);
   const processingRef = useRef(false);
@@ -29,11 +41,7 @@ export default function SessionPage() {
 
   const handleViewSession = (sessionID: string) => {
     if (!sessionID) return;
-
-    // 이전 연결 종료
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-    }
+    if (eventSourceRef.current) eventSourceRef.current.close();
 
     setSessionOutput("");
     setCurrentSessionID(sessionID);
@@ -45,17 +53,17 @@ export default function SessionPage() {
       { withCredentials: true }
     );
 
-     eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
-    try {
-      const payload = JSON.parse(e.data);
-      if (payload.type === "print") {
-        queueRef.current.push(payload);
-        processQueue();
+    eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
+      try {
+        const payload = JSON.parse(e.data);
+        if (payload.type === "print") {
+          queueRef.current.push(payload);
+          processQueue();
+        }
+      } catch (err) {
+        console.error("SSE 파싱 에러:", err);
       }
-    } catch (err) {
-      console.error("SSE 파싱 에러:", err);
-    }
-  });
+    });
 
     eventSource.onerror = (e) => {
       console.error("SSE 연결 오류:", e);
@@ -72,31 +80,27 @@ export default function SessionPage() {
     while (queueRef.current.length > 0) {
       const { data, delay } = queueRef.current.shift();
       setSessionOutput((prev) => prev + cleanData(data));
-      const safeDelay = Math.min(delay ?? 0, 300); // 너무 길면 제한
+      const safeDelay = Math.min(delay ?? 0, 300);
       await new Promise((res) => setTimeout(res, safeDelay));
     }
 
     processingRef.current = false;
   };
 
-  const cleanData = (input: string) => {
-    return input.replace(/.\x08/g, ""); // 백스페이스 처리
-  };
+  const cleanData = (input: string) => input.replace(/.\x08/g, "");
 
   useEffect(() => {
     api.get("/audit/events").then((res) => {
-  const rawEvents = res.data;
-
-  const audits: AuditLog[] = rawEvents
-    .filter((event: any) => event.event !== "cert.create") // cert.create 제외
-    .map((event: any) => ({
-      time: new Date(event.time).toLocaleString(),
-      user: event.user ?? event.identity?.user ?? "unknown",
-      event: event.event ?? "unknown",
-    }));
-
-  setAuditLogs(audits);
-});
+      const rawEvents = res.data;
+      const raws: RawAudit[] = rawEvents
+        .filter((event: any) => event.event !== "cert.create")
+        .map((event: any) => ({
+          timeMs: new Date(event.time).getTime(),
+          user: event.user ?? event.identity?.user ?? "unknown",
+          event: event.event ?? "unknown",
+        }));
+      setRawAudits(raws);
+    });
 
     api.get("/audit/session").then((res) => {
       const rawSessions = res.data;
@@ -117,30 +121,74 @@ export default function SessionPage() {
     });
 
     return () => {
-      // 페이지 떠날 때 SSE 종료
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-      }
+      if (eventSourceRef.current) eventSourceRef.current.close();
     };
   }, []);
 
+  // 날짜/키워드/타입으로 필터링
+  const filteredAudits = useMemo(() => {
+    let list = rawAudits;
+
+    // 날짜 범위
+    if (dateRange) {
+      const [s, e] = dateRange.split(" - ");
+      const startMs = s ? new Date(s + "T00:00:00").getTime() : -Infinity;
+      const endMs = e ? new Date(e + "T23:59:59.999").getTime() : Infinity;
+      list = list.filter((a) => a.timeMs >= startMs && a.timeMs <= endMs);
+    }
+
+    // 키워드 (user/event에 포함)
+    if (keyword.trim()) {
+      const q = keyword.toLowerCase();
+      list = list.filter(
+        (a) => a.user.toLowerCase().includes(q) || a.event.toLowerCase().includes(q)
+      );
+    }
+
+    // 타입 (단순 매칭)
+    if (eventType !== "All") {
+      list = list.filter((a) => a.event === eventType);
+    }
+
+    // 표시용 포맷으로 변환
+    return list.map((a) => ({
+      time: new Date(a.timeMs).toLocaleString(),
+      user: a.user,
+      event: a.event,
+    }));
+  }, [rawAudits, dateRange, keyword, eventType]);
+
+  // 화면에 반영
+  useEffect(() => {
+    setAuditLogs(filteredAudits);
+  }, [filteredAudits]);
+
   return (
-    <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "48px" }}>
+    <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* 🔎 필터 패널 */}
+      <FilterPanel
+        dateRange={dateRange}
+        keyword={keyword}
+        eventType={eventType}
+        onDateChange={setDateRange}
+        onKeywordChange={setKeyword}
+        onEventTypeChange={setEventType}
+      />
+
       <Log mode="audits" data={auditLogs} />
       <Log mode="sessions" data={sessionLogs} />
 
-       {/* 기존 하단 출력 박스는 제거하고 모달로 대체 */}
+      {/* 세션 뷰 모달 */}
       <SessionViewModal
         open={Boolean(currentSessionID)}
         title="View"
         sessionId={currentSessionID ?? undefined}
         output={sessionOutput}
         onClose={() => {
-          // 모달 닫힐 때 SSE 종료 & 상태 초기화
           if (eventSourceRef.current) eventSourceRef.current.close();
           eventSourceRef.current = null;
           setCurrentSessionID(null);
-          setSessionOutput('');
+          setSessionOutput("");
           queueRef.current = [];
           processingRef.current = false;
         }}
