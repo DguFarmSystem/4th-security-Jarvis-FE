@@ -22,3 +22,10 @@ export const ForRole: Story = {
     message: "Are you sure you want to delete the role 'editor'?",
   },
 };
+
+export const ForResource: Story = {
+  args: {
+    title: "Delete Resource",
+    message: "Are you sure you want to delete the resource 'test-server'?",
+  },
+};
