@@ -26,17 +26,51 @@ type User = {
   };
 };
 
+type Rule = {
+  resources: string[];
+  verbs: string[];
+};
+
 type Role = {
   kind: string;
+  version?: string;
   metadata?: {
     name: string;
+    description?: string;
+    labels?: Record<string, string>;
+    revision?: string;
   };
   spec?: {
     allow?: {
-      rules?: {
-        resources: string[];
-        verbs: string[];
-      }[];
+      rules?: Rule[];
+      logins?: string[];
+      node_labels?: Record<string, string>;
+      app_labels?: Record<string, string>;
+      db_labels?: Record<string, string>;
+      kubernetes_labels?: Record<string, string>;
+      kubernetes_groups?: string[];
+      kubernetes_users?: string[];
+      impersonate?: {
+        roles?: string[];
+        users?: string[];
+      };
+      windows_desktop_labels?: Record<string, string>;
+      aws_role_arns?: string[];
+      azure_identities?: string[];
+      gcp_service_accounts?: string[];
+      db_users?: string[];
+      db_names?: string[];
+      db_roles?: string[];
+      db_service_labels?: Record<string, string>;
+      kubernetes_resources?: any[]; // 실제 스펙 맞게 정의해도 됨
+      github_permissions?: any[];
+      join_sessions?: any[];
+      workload_identity_labels?: Record<string, string>;
+      [key: string]: any; // 기타 미정의 필드 대응
+    };
+    deny?: {
+      rules?: Rule[];
+      [key: string]: any;
     };
   };
 };
@@ -109,35 +143,66 @@ export default function ManagementPage() {
   };
 
   const createRole = async (name: string, permissions: string[]) => {
-    const rules = permissions.map((perm) => {
-      const [res, verb] = perm.split(":").map((s) => s.trim());
-      return { resources: [res], verbs: [verb] };
-    });
-    await api.post("/roles", {
-      kind: "role",
-      version: "v7",
-      metadata: {
-        name,
-        description: "Created from UI",
-        labels: { "teleport.internal/resource-type": "custom" },
-        revision: "auto-gen",
+  const rules = permissions.map((perm) => {
+    const [res, verb] = perm.split(":").map((s) => s.trim());
+    return { resources: [res], verbs: [verb] };
+  });
+
+  const rolePayload = {
+    kind: "role",
+    version: "v7",
+    metadata: {
+      name,
+      description: "Created from UI",
+      labels: { "teleport.internal/resource-type": "custom" },
+      revision: "auto-gen",
+    },
+    spec: {
+      allow: {
+        rules,
       },
-      spec: { allow: { rules } },
-    });
+      deny: {},
+    },
   };
 
-  const upsertRole = async (name: string, permissions: string[]) => {
-     const rules = permissions.map((perm) => {
+  await api.post("/roles", rolePayload);
+};
+
+
+const upsertRole = async (name: string, permissions: string[]) => {
+  const rules = permissions.map((perm) => {
     const [res, verb] = perm.split(":").map((s) => s.trim());
-       return { resources: [res], verbs: [verb] };
-     });
-     await api.put("/roles", {
-       kind: "role",
-       version: "v7",
-       metadata: { name },
-       spec: { allow: { rules } },
-     });
-   };
+    return { resources: [res], verbs: [verb] };
+  });
+
+  const existingRole = roles.find((r) => r.metadata?.name === name);
+
+  if (!existingRole) {
+    console.warn("역할을 찾을 수 없습니다:", name);
+    return;
+  }
+
+  // 전체 allow 구조 복사 (rules 포함)
+  const updatedAllow = {
+    ...(existingRole.spec?.allow ?? {}),
+    rules, // rules만 새 값으로 덮어쓰기
+  };
+
+  const updatedRole = {
+    kind: existingRole.kind,
+    version: existingRole.version ?? "v7",
+    metadata: {
+      ...existingRole.metadata,
+      revision: "auto-gen",
+    },
+    spec: {
+      allow: updatedAllow,
+      deny: { ...(existingRole.spec?.deny ?? {}) },
+    },
+  };
+
+  await api.put("/roles", updatedRole);
+};
 
   const handleUserUpdate = async (updated: { username: string; roles: string[] }) => {
     try {
