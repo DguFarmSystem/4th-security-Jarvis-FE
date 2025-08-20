@@ -5,116 +5,121 @@ type LogMode = "audits" | "sessions" | "activities";
 
 interface LogProps {
   mode?: LogMode;
-  data: Record<string, any>[]; // 외부에서 데이터를 주입받음
+  data: Record<string, any>[];
 }
 
-export const Log = ({ mode = "audits", data }: LogProps) => {
-  const headers =
-    mode === "audits"
-      ? ["Time", "User", "Event"]
-      : mode === "sessions"
-      ? ["User", "Server", "Duration", "View"]
-      : ["Time", "Event"];
+const tableWidths: Record<LogMode, string[]> = {
+  audits: ["240px", "240px", "245px"], 
+  sessions: ["200px", "200px", "200px", "125px"],
+  activities: ["362px", "363px"],
+};
 
-  const columnWidths =
-    mode === "audits"
-      ? ["200px", "147px", "122px"]
-      : mode === "sessions"
-      ? ["200px", "147px", "auto", "100px"] 
-      : ["200px", "200px"];
+const headersByMode: Record<LogMode, { key: string; label: string }[]> = {
+  audits: [
+    { key: "time", label: "Time" },
+    { key: "user", label: "User" },
+    { key: "event", label: "Event" },
+  ],
+  sessions: [
+    { key: "user", label: "User" },
+    { key: "server", label: "Server" },
+    { key: "duration", label: "Duration" },
+    { key: "view", label: "View" }, // View 버튼용
+  ],
+  activities: [
+    { key: "time", label: "Time" },
+    { key: "event", label: "Event" },
+  ],
+};
+
+export const Log = ({ mode = "audits", data }: LogProps) => {
+  const headers = headersByMode[mode];
+  const columnWidths = tableWidths[mode];
+
+  const containerHeight =
+    mode === "audits" ? "422px" : mode === "sessions" ? "260px" : "920px";
 
   return (
     <div
       style={{
         width: "921px",
-        height:
-          mode === "audits"
-            ? "422px"
-            : mode === "sessions"
-            ? "260px"
-            : "920px",
+        height: containerHeight,
         flexShrink: 0,
         borderRadius: "15px",
         border: "1px solid #737373",
         opacity: 0.5,
         background: "var(--color-white)",
         paddingLeft: "52px",
-        paddingTop: "27px",
         paddingRight: "144px",
+        paddingTop: "27px",
         overflowY: "auto",
+        boxSizing: "border-box",
       }}
     >
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          tableLayout: "fixed",
+        }}
+      >
+        <colgroup>
+          {columnWidths.map((width, idx) => (
+            <col key={idx} style={{ width }} />
+          ))}
+        </colgroup>
         <thead>
           <tr>
-            {headers.map((title, idx) => (
+            {headers.map((h) => (
               <th
-                key={title}
+                key={h.key}
                 style={{
-                  width: columnWidths[idx],
                   textAlign: "left",
                   paddingBottom: "14px",
                   color: "#000",
                   fontFamily: "var(--font-pretendard)",
                   fontSize: "20px",
                   fontWeight: 700,
-                  lineHeight: "normal",
-                  verticalAlign: "middle",
                   borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
                 }}
               >
-                {title}
+                {h.label}
               </th>
             ))}
-            {mode === "sessions" && (
-              <th
-                style={{
-                  width: "100px",
-                  textAlign: "left",
-                  paddingBottom: "14px",
-                  color: "#000",
-                  fontFamily: "var(--font-pretendard)",
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  lineHeight: "normal",
-                  verticalAlign: "middle",
-                  borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
-                }}
-              >
-              </th>
-            )}
           </tr>
         </thead>
         <tbody>
           {data.map((row, index) => (
             <tr key={index} style={{ height: "48px" }}>
-              {headers.map((key) => (
+              {headers.map((h) => (
                 <td
-                  key={key}
+                  key={h.key}
                   style={{
                     ...cellStyle,
                     borderBottom: "1px solid var(--color-gray-400, #D3D3D3)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  {(row as any)[key.toLowerCase()] ?? "-"}
+                  {h.key === "view" ? (
+                    <Button
+                      variant="view"
+                      onClick={() => {
+                        if (row.sessionid) {
+                          row.onView?.(row.sessionid);
+                        } else {
+                          alert("세션 ID가 존재하지 않습니다.");
+                        }
+                      }}
+                    >
+                      View
+                    </Button>
+                  ) : (
+                    row[h.key] ?? "-"
+                  )}
                 </td>
               ))}
-              {mode === "sessions" && (
-                <td>
-                  <Button
-                    variant="view"
-                    onClick={() => {
-                      if (row.sessionid) {
-                        row.onView?.(row.sessionid);
-                      } else {
-                        alert("세션 ID가 존재하지 않습니다.");
-                      }
-                    }}
-                  >
-                    View
-                  </Button>
-                </td>
-              )}
             </tr>
           ))}
         </tbody>
