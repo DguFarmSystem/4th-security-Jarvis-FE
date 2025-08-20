@@ -42,14 +42,12 @@ export default function ResourcePage() {
             setTerminalSocket(socket);
           },
           onDeleteClick: async () => {
-            const ok = window.confirm(`노드 "${nodeHost}" 를 삭제할까요?`);
-            if (!ok) return;
             try {
               await api.delete(`/resources/nodes/${nodeName}`);
               await fetchResources(); // 삭제 후 새로고침
             } catch (e) {
-              console.error("노드 삭제 실패:", e);
-              alert("노드 삭제에 실패했어요.");
+              console.error("Failed to delete node:", e);
+              alert("Failed to delete node");
             }
           },
         };
