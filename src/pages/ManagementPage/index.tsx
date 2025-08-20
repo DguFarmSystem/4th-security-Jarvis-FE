@@ -243,12 +243,12 @@ const upsertRole = async (name: string, permissions: string[]) => {
           user: u.metadata.name,
           role: u.spec.roles.join(", "),
         }))}
-        // 헤더 "+ Update User" 버튼 → 빈 값으로 모달 오픈
+        
         onUpdateUser={() => {
           setSelectedUser({ username: "", roles: [] });
           setUpdateUserModalOpen(true);
         }}
-        // 행 삭제 → 삭제 모달 오픈
+       
         onDelete={(index) => {
           const user = users[index];
           setSelectedUser({
