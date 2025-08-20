@@ -100,10 +100,12 @@ export default function ResourcePage() {
       <ResourceTable columns={["이름", "종류", "태그"]} resources={resources} />
 
       {terminalSocket && (
-        <div style={{ marginTop: 32 }}>
-          <TerminalComponent socket={terminalSocket} />
-        </div>
-      )}
+  <TerminalComponent
+    socket={terminalSocket}
+    onClose={() => setTerminalSocket(null)}
+  />
+)}
+
     </div>
   );
 }

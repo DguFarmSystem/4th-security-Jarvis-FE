@@ -4,9 +4,10 @@ import 'xterm/css/xterm.css';
 
 interface TerminalProps {
   socket: WebSocket;
+  onClose: () => void;
 }
 
-const TerminalComponent: React.FC<TerminalProps> = ({ socket }) => {
+const TerminalComponent: React.FC<TerminalProps> = ({ socket, onClose }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const term = useRef<Terminal | null>(null);
 
@@ -50,7 +51,46 @@ const TerminalComponent: React.FC<TerminalProps> = ({ socket }) => {
     };
   }, [socket]);
 
-  return <div ref={terminalRef} style={{ height: '500px', width: '100%', backgroundColor: '#1e1e1e' }} />;
-};
+   return (
+    <div style={overlayStyle}>
+      <div style={modalStyle}>
+        <div ref={terminalRef} style={{ height: '500px', width: '100%' }} />
+        <button style={closeButtonStyle} onClick={onClose}>x</button>
+      </div>
+    </div>
+  );
+}
 
 export default TerminalComponent;
+
+const overlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100vw',
+  height: '100vh',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 9999,
+};
+
+const modalStyle: React.CSSProperties = {
+  backgroundColor: '#1e1e1e',
+  padding: 16,
+  borderRadius: 8,
+  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+  width: '90%',
+  maxWidth: 800,
+};
+
+const closeButtonStyle: React.CSSProperties = {
+  top: 8,
+  right: 12,
+  background: 'none',
+  border: 'none',
+  fontSize: 18,
+  color: '#fff',
+  cursor: 'pointer',
+};
