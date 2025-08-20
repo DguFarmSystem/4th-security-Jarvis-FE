@@ -40,7 +40,7 @@ export default function DashboardPage() {
         dbSessions={mockDbSessions}
         appSessions={mockAppSessions}
       />
-      <ResourceSummary nodeCount={nodeCount} dbCount={2} appCount={5} />
+      <ResourceSummary nodeCount={nodeCount} dbCount={2} appCount={2} />
     </div>
   );
 }
