@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../../Button';
-import GitHubLogo from '../../../../assets/GitHub.svg';
+import GitHubLogo from '../../../../assets/icons/GitHubLogo.png';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -72,12 +72,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: '0 auto',
   },
   logo: {
-    position: 'absolute',
-    top: 9,
-    transform: 'translateY(-100%)',
-    width: 443,
-    height: 164,
-    flexShrink: 0,
-    aspectRatio: '208 / 77', 
-  },
+  position: 'absolute',
+  top: 9, 
+  left: '50%',
+  transform: 'translateX(-50%)', 
+  width: 443,
+  height: 164,
+  objectFit: 'contain',
+},
 };
