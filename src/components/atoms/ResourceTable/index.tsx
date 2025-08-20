@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState} from 'react';
 import Button from '../Button';
 import { TrashIcon } from '@/assets/icons/TrashIcon';
+import { ConfirmDeleteModal } from '../Modal/ConfirmDeleteModal/index';
 
 export interface Resource {
   name: string;
@@ -23,7 +24,20 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
   columns,
   resources,
 }) => {
+
+   const [toDeleteIndex, setToDeleteIndex] = useState<number | null>(null);
+
+  const openConfirm = (idx: number) => setToDeleteIndex(idx);
+  const closeConfirm = () => setToDeleteIndex(null);
+
+  const confirmDelete = () => {
+    if (toDeleteIndex === null) return;
+    resources[toDeleteIndex].onDeleteClick?.();
+    closeConfirm();
+  };
+
   return (
+    <>
     <table style={styles.table}>
       <thead>
         <tr>
@@ -64,6 +78,15 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
         ))}
       </tbody>
     </table>
+     {toDeleteIndex !== null && (
+        <ConfirmDeleteModal
+          title="노드 삭제"
+          message={`"${resources[toDeleteIndex].name}" 노드를 삭제할까요?`}
+          onConfirm={confirmDelete}
+          onCancel={closeConfirm}
+        />
+      )}
+    </>
   );
 };
 
