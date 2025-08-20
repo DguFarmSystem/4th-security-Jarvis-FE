@@ -11,6 +11,11 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"), // @ → src/
+    },
+  },
   test: {
     projects: [{
       extends: true,
@@ -20,11 +25,6 @@ export default defineConfig({
       storybookTest({
         configDir: path.join(dirname, '.storybook')
       })],
-      resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"), // @ → src/
-    },
-  },
       test: {
         name: 'storybook',
         browser: {

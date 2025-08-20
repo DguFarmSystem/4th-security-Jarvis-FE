@@ -1,6 +1,5 @@
 import React from 'react';
 import Button from '../../Button';
-import GitHubLogo from '@assets/GitHubLogo.png';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,8 +16,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
     <div style={styles.overlay}>
       <div style={styles.modal}>
         {/* GitHub 로고 */}
-        <img src={GitHubLogo} alt="GitHub Logo" style={styles.logo} />
-
+       <img src="/images/GithubLogo.png" alt="GitHub Logo" style={styles.logo} />
         {/* 로그인 버튼 */}
         <Button variant="login" onClick={handleGitHubLogin} style={styles.loginButton}>
           Continue with GitHub
