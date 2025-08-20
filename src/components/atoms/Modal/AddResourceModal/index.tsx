@@ -46,7 +46,7 @@ export const AddResourceModal = ({ onSubmit, onCancel }: AddResourceModalProps) 
      setTokenData(res.data);
   } catch (error) {
     console.error("토큰 생성 실패:", error);
-    alert("토큰 생성 중 오류가 발생했습니다.");
+    alert("토큰 생성 권한이 없습니다.");
   }
 };
 

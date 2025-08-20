@@ -279,27 +279,27 @@ export default function ManagementPage() {
       )}
 
       {showEditRoleModal && (
-  <UpdateRoleModal
-    roleName={editRoleName}
-    selectedPermissions={editRoleChecked}
-    allPermissions={allPermissions}
-    onCancel={() => {
+<UpdateRoleModal
+  roleName={editRoleName}
+  selectedPermissions={editRoleChecked}
+  allPermissions={allPermissions}
+  onCancel={() => {
+    setShowEditRoleModal(false);
+    setEditRoleName("");
+    setEditRoleChecked([]);
+  }}
+  onSave={async ({ role, permissions }) => {
+    try {
+      await upsertRole(role, permissions); // 여기서 실제 선택된 값 사용
       setShowEditRoleModal(false);
       setEditRoleName("");
       setEditRoleChecked([]);
-    }}
-    onSave={async () => {
-      try {
-        await upsertRole(editRoleName, editRoleChecked);
-        setShowEditRoleModal(false);
-        setEditRoleName("");
-        setEditRoleChecked([]);
-        fetchRoles();
-      } catch (e) {
-        console.error("역할 업데이트 실패", e);
-      }
-    }}
-  />
+      fetchRoles();
+    } catch (e) {
+      console.error("역할 업데이트 실패", e);
+    }
+  }}
+/>
 )}
     </div>
   );
