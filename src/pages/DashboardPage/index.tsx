@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ResourceSummary } from "../../components/atoms/SummaryPanel";
 import { ResourceTrendsChart } from "../../components/atoms/ResourceTrendsChart";
-import { api } from "../../utils/axios";
+import { api } from "@/utils/axios";
 import { mockAppSessions, mockDbSessions } from "../../mocks/mockData";
 
 export default function DashboardPage() {
