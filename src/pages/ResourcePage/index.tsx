@@ -75,28 +75,35 @@ export default function ResourcePage() {
   };
 
   return (
-    <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "32px" }}>
-      <Button variant="addResource" onClick={() => setShowModal(true)}>
-      생성
-    </Button>
+    <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 32 }}>
+      {/* 여기서 상단 단독 버튼 제거하고, 아래 ResourceType에 action으로 넘김 */}
 
-    {showModal && (
-  <AddResourceModal
-    onSubmit={() => {
-      setShowModal(false); // 토큰 생성 후 모달 닫기
-      // 필요 시 리소스 목록 갱신 등 추가
-    }}
-    onCancel={() => setShowModal(false)} // 취소 시 닫기
-  />
-)}
-      <ResourceType options={selectedTypes} onToggle={handleToggle} />
+      {showModal && (
+        <AddResourceModal
+          onSubmit={() => setShowModal(false)}
+          onCancel={() => setShowModal(false)}
+        />
+      )}
+
+      <ResourceType
+  title="Resource Type"
+  options={selectedTypes}
+  onToggle={handleToggle}
+  headerRight="생성"
+  optionsRight={
+    <Button variant="addResource" onClick={() => setShowModal(true)}>
+      리소스 추가
+    </Button>
+  }
+/>
+
       <ResourceTable columns={["이름", "종류", "태그"]} resources={resources} />
-       {/* WebSocket 연결되면 터미널 표시 */}
-    {terminalSocket && (
-      <div style={{ marginTop: 32 }}>
-        <TerminalComponent socket={terminalSocket} />
-      </div>
-    )}
+
+      {terminalSocket && (
+        <div style={{ marginTop: 32 }}>
+          <TerminalComponent socket={terminalSocket} />
+        </div>
+      )}
     </div>
   );
 }
