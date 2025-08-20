@@ -31,28 +31,29 @@ export const Tab = ({ title = "4th-security-Jarvis" }: TabProps) => {
       }}
     >
       {/* Title 전용 패딩 */}
-      <div
-        style={{
-          paddingTop: "41px",
-          paddingRight: "69px",
-          paddingBottom: "32px",
-          paddingLeft: "82px",
-        }}
-      >
-        <div
-          style={{
-            color: "#FFF",
-            fontFamily: "var(--font-pretendard)",
-            fontSize: "32px",
-            fontWeight: 700,
-            lineHeight: "normal",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {title}
-        </div>
-      </div>
-
+<div
+  style={{
+    paddingTop: "41px",
+    paddingRight: "69px",
+    paddingBottom: "32px",
+    paddingLeft: "82px",
+  }}
+>
+  <div
+    style={{
+      color: "#FFF",
+      fontFamily: "var(--font-pretendard)",
+      fontSize: "32px",
+      fontWeight: 700,
+      lineHeight: "1.4",
+      wordBreak: "break-word", // 단어 기준 줄바꿈
+      whiteSpace: "normal",     // 줄바꿈 허용
+      maxWidth: "174px",        // 타이틀 박스 너비 제한 (325 - padding)
+    }}
+  >
+    {title}
+  </div>
+</div>
       <div
         style={{
           marginTop: "10px",
