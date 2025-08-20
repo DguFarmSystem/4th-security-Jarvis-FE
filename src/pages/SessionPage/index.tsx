@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Log } from "../../components/atoms/Log";
 import { api } from "../../utils/axios";
+import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 
 type AuditLog = {
   time: string;
@@ -128,24 +129,22 @@ export default function SessionPage() {
       <Log mode="audits" data={auditLogs} />
       <Log mode="sessions" data={sessionLogs} />
 
-      {currentSessionID && (
-        <div
-          style={{
-            marginTop: "32px",
-            padding: "20px",
-            background: "#000",
-            color: "#0f0",
-            whiteSpace: "pre-wrap",
-            fontFamily: "monospace",
-            maxHeight: "400px",
-            overflowY: "auto",
-            borderRadius: "8px",
-          }}
-        >
-          <h3 style={{ color: "#fff" }}>🧾 Session Output: {currentSessionID}</h3>
-          {sessionOutput || "로딩 중..."}
-        </div>
-      )}
+       {/* 기존 하단 출력 박스는 제거하고 모달로 대체 */}
+      <SessionViewModal
+        open={Boolean(currentSessionID)}
+        title="View"
+        sessionId={currentSessionID ?? undefined}
+        output={sessionOutput}
+        onClose={() => {
+          // 모달 닫힐 때 SSE 종료 & 상태 초기화
+          if (eventSourceRef.current) eventSourceRef.current.close();
+          eventSourceRef.current = null;
+          setCurrentSessionID(null);
+          setSessionOutput('');
+          queueRef.current = [];
+          processingRef.current = false;
+        }}
+      />
     </div>
   );
 }
