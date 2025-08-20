@@ -20,6 +20,11 @@ export default defineConfig({
       storybookTest({
         configDir: path.join(dirname, '.storybook')
       })],
+      resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"), // @ → src/
+    },
+  },
       test: {
         name: 'storybook',
         browser: {
