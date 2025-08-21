@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Log } from "../../components/atoms/Log";
-import { api } from "../../utils/axios";
+import { Log } from "@/components/atoms/Log";
+import type { AuditLog, RawAudit } from "@/types/auditTypes";
+import type { SessionLog } from "@/types/SessionTypes";
+import { api } from "@/utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 import FilterPanel from "@/components/atoms/FilterPanel";
-
-type AuditLog = { time: string; user: string; event: string };
-type RawAudit  = { timeMs: number; user: string; event: string };
-type SessionLog = {
-  user: string; server: string; duration: string; sessionid: string;
-  onView?: (sessionID: string) => void;
-};
 
 export default function SessionPage() {
   const [rawAudits, setRawAudits] = useState<RawAudit[]>([]);

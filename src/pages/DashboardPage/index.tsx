@@ -1,36 +1,42 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ResourceSummary } from "@/components/atoms/SummaryPanel";
-import { ResourceTrendsChart } from "../../components/atoms/ResourceTrendsChart";
+import { ResourceTrendsChart } from "@/components/atoms/ResourceTrendsChart";
 import { api } from "@/utils/axios";
-import { mockAppSessions, mockDbSessions } from "../../mocks/mockData";
+import { mockAppSessions, mockDbSessions } from "@/mocks/mockData";
 import { DiscoverRedirectButton } from "@/components/RedirectButton";
 
+async function fetchNodes() {
+  const res = await api.get("/resources/nodes");
+  return res.data;
+}
+
+async function fetchSessions() {
+  const res = await api.get("/audit/session");
+  return res.data;
+}
+
 export default function DashboardPage() {
-  const [nodeCount, setNodeCount] = useState(0);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const {
+    data: nodes = [],
+    isLoading: isNodesLoading,
+    isError: isNodesError,
+  } = useQuery({ queryKey: ["nodes"], queryFn: fetchNodes });
 
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const nodesRes = await api.get("/resources/nodes");
-        setNodeCount(nodesRes.data.length ?? 0);
-      } catch (err) {
-        console.error("노드 불러오기 실패", err);
-      }
-    };
+  const {
+    data: sessions = [],
+    isLoading: isSessionsLoading,
+    isError: isSessionsError,
+  } = useQuery({ queryKey: ["sessions"], queryFn: fetchSessions });
 
-    const fetchSessions = async () => {
-      try {
-        const res = await api.get("/audit/session");
-        setSessions(res.data ?? []);
-      } catch (err) {
-        console.error("세션 불러오기 실패", err);
-      }
-    };
+    // 로딩 로그
+  if (isNodesLoading || isSessionsLoading) {
+    console.log("📡 데이터 로딩 중...");
+  }
 
-    fetchResources();
-    fetchSessions();
-  }, []);
+  // 에러 로그
+  if (isNodesError || isSessionsError) {
+    console.error("❌ 데이터 불러오기 실패");
+  }
 
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "32px" }}>
@@ -40,7 +46,7 @@ export default function DashboardPage() {
         dbSessions={mockDbSessions}
         appSessions={mockAppSessions}
       />
-      <ResourceSummary nodeCount={nodeCount} dbCount={2} appCount={2} />
+      <ResourceSummary nodeCount={nodes.length} dbCount={2} appCount={2} />
     </div>
   );
 }

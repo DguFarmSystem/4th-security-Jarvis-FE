@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import ResourceTable from "../../components/atoms/ResourceTable";
-import type { Resource } from "../../components/atoms/ResourceTable";
-import { ResourceType } from "../../components/atoms/Filters";
-import type { ResourceOption } from "../../components/atoms/Filters";
-import { api } from "../../utils/axios";
-import { mockApps, mockDatabases } from "../../mocks/mockData";
+import ResourceTable from "@/components/atoms/ResourceTable";
+import type { Resource } from "@/components/atoms/ResourceTable";
+import { ResourceType } from "@/components/atoms/Filters";
+import type { ResourceOption } from "@/components/atoms/Filters";
+import { api } from "@/utils/axios";
+import { mockApps, mockDatabases } from "@/mocks/mockData";
 // import { getCurrentUsernameFromCookie } from "../../utils/auth";
-import { connectToSSHWebSocket } from "../../utils/ws";
-import Button from "../../components/atoms/Button";
-import { AddResourceModal } from "../../components/atoms/Modal/AddResourceModal";
-import TerminalComponent from "../../components/Terminal";
+import { connectToSSHWebSocket } from "@/utils/ws";
+import Button from "@/components/atoms/Button";
+import { AddResourceModal } from "@/components/atoms/Modal/AddResourceModal";
+import TerminalComponent from "@/components/Terminal";
 
 export default function ResourcePage() {
   const [resources, setResources] = useState<Resource[]>([]);
