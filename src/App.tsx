@@ -10,6 +10,7 @@ import { Tab } from "./components/atoms/Tab";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./queryClient";
 import "../src/styles/global.css";
+import "./index.css";
 
 function App() {
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
