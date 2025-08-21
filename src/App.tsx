@@ -7,11 +7,12 @@ import ResourcePage from "./pages/ResourcePage";
 import SessionPage from "./pages/SessionPage";
 import ManagementPage from "./pages/ManagementPage";
 import { Tab } from "./components/atoms/Tab";
-import "./index.css"
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./queryClient";
 import "../src/styles/global.css";
 
 function App() {
-  const [isAuthenticated, setAuthenticated] = useState(false);
+  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
     api
@@ -20,34 +21,32 @@ function App() {
       .catch(() => setAuthenticated(false));
   }, []);
 
-  if (isAuthenticated === null) return null; // 로딩 중일 때
-
   return (
-    <BrowserRouter>
-      {!isAuthenticated ? (
-        <LoginModal isOpen={true} />
-      ) : (
-        <div className="layout-wrapper">
-          <div className="layout-box">
-            <div className="layout-tab">
-              <Tab />
-            </div>
-            <div className="layout-content">
-              <Routes>
-                {/* 기본 경로를 대시보드로 리디렉션 */}
-                <Route path="/" element={<Navigate to="/dashboard" />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/resource" element={<ResourcePage />} />
-                <Route path="/sessions" element={<SessionPage />} />
-                <Route path="/management" element={<ManagementPage />} />
-                {/* 존재하지 않는 경로 -> 대시보드로 이동 */}
-                <Route path="*" element={<Navigate to="/dashboard" />} />
-              </Routes>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        {!isAuthenticated ? (
+          <LoginModal isOpen={true} />
+        ) : (
+          <div className="layout-wrapper">
+            <div className="layout-box">
+              <div className="layout-tab">
+                <Tab />
+              </div>
+              <div className="layout-content">
+                <Routes>
+                  <Route path="/" element={<Navigate to="/dashboard" />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/resource" element={<ResourcePage />} />
+                  <Route path="/sessions" element={<SessionPage />} />
+                  <Route path="/management" element={<ManagementPage />} />
+                  <Route path="*" element={<Navigate to="/dashboard" />} />
+                </Routes>
+              </div>
             </div>
           </div>
-          </div>
-      )}
-    </BrowserRouter>
+        )}
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 
