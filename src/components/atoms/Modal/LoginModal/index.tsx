@@ -9,7 +9,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   const handleGitHubLogin = () => {
-    window.location.href = '/login';
+    window.location.href = 'https://openswdev.duckdns.org/login';
   };
 
   return (
