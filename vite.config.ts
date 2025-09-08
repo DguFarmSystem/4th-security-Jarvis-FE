@@ -16,6 +16,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"), // @ → src/
     },
   },
+  base: "/",
   test: {
     projects: [{
       extends: true,

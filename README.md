@@ -44,3 +44,100 @@
 	•	Sessions: 활성/종료 세션, 실시간 보기, 개별 세션 상세.
 	•	Management: 사용자/역할/권한 관리(체크박스 토글 기반), 생성/수정/삭제 모달.
 	•	Audit Logs: 기간/키워드/타입 필터, AI 분석 결과(요약·리스크 라벨) 표시.
+
+---
+
+## 🚀 설치 가이드
+
+이 가이드는 Jarvis 프론트엔드 프로젝트를 로컬에서 실행하고, Vercel에 배포하거나 GitHub Actions로 협업하는 데 필요한 설정 방법을 설명합니다.
+
+### 📦 설치 및 실행
+
+```bash
+# 1. 레포 클론
+git clone https://github.com/your-org-name/jarvis-frontend.git
+cd jarvis-frontend
+
+# 2. 의존성 설치 (pnpm 권장)
+pnpm install
+
+# 3. 개발 서버 실행
+pnpm dev
+```
+
+기본적으로 Vite 개발 서버가 `localhost:5173`에서 실행됩니다. API 호출은 `.env`에 설정된 `VITE_API_URL`을 기준으로 수행됩니다.
+
+---
+
+### ⚙️ 환경변수 설정 (.env.local)
+
+루트 디렉토리에 `.env.local` 파일을 생성하고 다음과 같이 작성합니다:
+
+```env
+VITE_API_URL=https://openswdev.duckdns.org
+```
+
+> `VITE_API_URL`은 프론트엔드에서 백엔드 API 서버로 요청을 보낼 때 사용하는 기본 URL입니다. 개발 환경에서는 이를 로컬 또는 테스트 서버로 변경할 수 있습니다.
+
+---
+
+### 🔐 GitHub Actions & 배포 관련 Secrets
+
+협업 또는 CI/CD에 필요한 `Repository secrets`는 아래와 같이 사용됩니다:
+
+| 이름                        | 설명                                        |
+| ------------------------- | ----------------------------------------- |
+| `AUTO_ACTIONS`            | 포크 레포로 자동 푸시 시 사용되는 Personal Access Token |
+| `CHROMATIC_PROJECT_TOKEN` | Storybook 프리뷰를 Chromatic에 배포할 때 사용되는 토큰   |
+| `GH_TOKEN`                | GitHub API 요청 및 PR 코멘트 등에 사용              |
+| `OFFICIAL_ACCOUNT_EMAIL`  | Git 커밋 및 푸시 시 사용하는 공식 계정 이메일              |
+| `VERCEL_ORG_ID`           | Vercel 조직 식별자                             |
+| `VERCEL_PROJECT_ID`       | Vercel 프로젝트 식별자                           |
+| `VERCEL_TOKEN`            | Vercel CLI 인증 및 배포용 토큰                    |
+
+CI에서 사용하는 Workflows는 다음과 같습니다:
+
+#### 1. ✅ **Preview Deployments**
+
+* PR이 생성되면, Vercel로 미리보기 배포 진행
+* `.env.local`은 Vercel 설정에서 자동으로 로딩됨 (`vercel pull`)
+
+#### 2. 📚 **Storybook Preview**
+
+* `src/components/atoms/**` 경로에 변경이 생기면 Chromatic으로 Storybook 빌드 & 공유 링크 PR에 자동 코멘트
+
+#### 3. 🔄 **Fork Sync**
+
+* `main` 브랜치에 푸시가 생기면 포크된 레포에도 자동 동기화 (협업자 코드 최신화)
+
+---
+
+### 🧪 유닛 테스트 & 린팅
+
+```bash
+# 테스트 실행
+pnpm test
+
+# 린트 실행
+pnpm lint
+```
+
+---
+
+### 📝 기여 방법 (Contribution Guide)
+
+1. `main` 브랜치를 기준으로 새 브랜치 생성
+2. 기능 구현 또는 버그 수정
+3. PR 생성 → GitHub Actions가 자동으로 PR 미리보기 및 Storybook URL 제공
+4. 리뷰 후 병합
+
+---
+
+### 🖥️ 로컬 개발 팁
+
+* 실제 API 연동 없이 테스트하려면 `Mock Service Worker (MSW)`를 활성화하면 됩니다.
+* 컴포넌트 개발은 Storybook (`pnpm storybook`)으로 병행 개발 가능합니다.
+* 환경에 따라 Vite dev server 포트를 커스터마이징할 수 있습니다:
+  `.env.local`에 `VITE_PORT=3000` 등 추가
+
+---
