@@ -1,22 +1,35 @@
-# Frontend multi-stage Dockerfile
-# Build the Vite + React app, then serve with nginx
+# 1. Node.js 환경에서 애플리케이션 빌드
+FROM node:18 AS builder
 
-FROM node:18-alpine AS build
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# Install pnpm and use it to install dependencies
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# package.json과 package-lock.json 복사
+COPY package*.json ./
 
-# copy lockfile first for layer caching
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# 의존성 설치
+RUN npm install
 
-# copy source and build
+# 애플리케이션 소스 복사
 COPY . .
-RUN pnpm run build
 
-# Serve with nginx
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# 애플리케이션 빌드
+RUN npm run build
+
+# 2. 경량 Node.js 환경에서 HTTPS 서버 실행
+FROM node:18-slim
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 빌드된 파일 복사
+COPY --from=builder /app/build ./build
+
+# 필요한 Node.js 패키지 설치 (serve 사용)
+RUN npm install -g serve
+
+# 환경 변수 설정
+ENV NODE_ENV=production
+
+# 컨테이너가 실행될 때 HTTPS 서버 실행
+CMD ["serve", "-s", "build", "-l", "3000", "--ssl-cert", "/etc/keys/fullchain.pem", "--ssl-key", "/etc/keys/privkey.pem"]
