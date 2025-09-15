@@ -285,13 +285,6 @@ vercel pull --yes --environment=preview --token=YOUR_VERCEL_TOKEN
 
 * 모든 PR은 `main` 브랜치를 대상으로 생성
 
-### 코드 작성 시 체크리스트
-
-* [ ] `pnpm lint` 통과
-* [ ] `pnpm test` 통과
-* [ ] `.env` 커밋되지 않았는지 확인
-* [ ] 커밋 메시지는 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) 스타일로 작성
-
 ### PR 생성 시 자동 작업
 
 * Chromatic에서 Storybook Preview 배포 → PR에 댓글로 링크 추가
