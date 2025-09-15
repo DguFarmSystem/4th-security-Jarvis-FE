@@ -225,21 +225,28 @@ GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등
 * **용도**: Vercel CLI에서 프로젝트를 빌드/배포하기 위한 ID 정보
 * **확인 방법**:
 
-  1. Vercel CLI 설치 (이미 자동 설치됨)
-  2. 아래 명령어 실행:
+  1. 먼저 Vercel CLI를 전역 설치합니다:
 
-```bash
-vercel pull --yes --environment=preview --token=YOUR_VERCEL_TOKEN
-```
+  ```bash
+  npm install -g vercel
+  ```
 
-* 위 명령을 실행하면 `.vercel` 폴더 안에 `project.json`이 생성되고, 그 안에 `orgId`, `projectId`가 포함됩니다.
+  2. 터미널에서 다음 명령어 실행:
 
-* 또는, 수동 확인:
+  ```bash
+  vercel pull --yes --environment=preview --token=YOUR_VERCEL_TOKEN
+  ```
+
+  3. 실행이 완료되면 프로젝트 루트에 `.vercel` 폴더가 생성되고, 그 안의 `project.json` 파일에 다음 정보가 포함됩니다:
+
+  * `orgId`
+  * `projectId`
+- **또는, 수동 확인**:
 
   * [Vercel Dashboard](https://vercel.com/dashboard)
   * 프로젝트 클릭 → `Settings` → 하단의 `Project ID`, `Org ID` 확인 가능
 
-* **GitHub Secrets에 추가**:
+- **GitHub Secrets에 추가**:
 
   * Name: `VERCEL_PROJECT_ID` → Vercel의 Project ID
   * Name: `VERCEL_ORG_ID` → Vercel의 Organization ID
