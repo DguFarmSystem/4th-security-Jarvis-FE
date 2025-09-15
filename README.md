@@ -146,7 +146,7 @@ GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등
 
 ---
 
-### 2. `GH_TOKEN` 또는 `GITHUB_TOKEN`
+### 2. `GH_TOKEN`
 
 * **용도**: PR에 자동 댓글을 작성하거나, Chromatic 등 외부 연동 시 인증
 * **발급 방법**:
