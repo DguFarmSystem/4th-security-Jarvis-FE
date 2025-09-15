@@ -231,13 +231,13 @@ GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등
   npm install -g vercel
 ````
 
-  2. 터미널에서 다음 명령어 실행:
+2. 터미널에서 다음 명령어 실행:
 
 ```bash
 vercel pull --yes --environment=preview --token=YOUR_VERCEL_TOKEN
 ```
 
-  3. 실행이 완료되면 프로젝트 루트에 `.vercel` 폴더가 생성되고, 그 안의 `project.json` 파일에 다음 정보가 포함됩니다:
+3. 실행이 완료되면 프로젝트 루트에 `.vercel` 폴더가 생성되고, 그 안의 `project.json` 파일에 다음 정보가 포함됩니다:
 
 * `orgId`
 * `projectId`
