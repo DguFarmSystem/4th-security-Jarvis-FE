@@ -241,7 +241,7 @@ GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등
 
   * `orgId`
   * `projectId`
-  - **또는, 수동 확인**:
+- **또는, 수동 확인**:
 
   * [Vercel Dashboard](https://vercel.com/dashboard)
   * 프로젝트 클릭 → `Settings` → 하단의 `Project ID`, `Org ID` 확인 가능
