@@ -47,76 +47,255 @@
 
 이 가이드는 Jarvis 프론트엔드 프로젝트를 로컬에서 실행하고, Vercel에 배포하거나 GitHub Actions로 협업하는 데 필요한 설정 방법을 설명합니다.
 
-### 📦 설치 및 실행
+### 1. 시스템 요구사항
+
+| 항목     | 권장 버전 |
+|----------|----------|
+| Node.js  | `>=18.x` |
+| pnpm     | `>=8.x`  |
 
 ```bash
-# 1. 레포 클론
-git clone https://github.com/your-org-name/jarvis-frontend.git
-cd jarvis-frontend
+# pnpm이 없다면 설치
+npm install -g pnpm
+````
 
-# 2. 의존성 설치 (pnpm 권장)
+---
+
+### 2. 프로젝트 클론
+
+```bash
+git clone https://github.com/your-org/your-project.git
+cd your-project
+```
+
+---
+
+### 3. 환경 변수 설정 (`.env`)
+
+루트 경로에 `.env` 또는 `.env.local` 파일을 생성한 후 아래 내용을 추가하세요:
+
+```dotenv
+# .env
+
+VITE_API_URL=https://your-api-url.example.com
+```
+
+| 변수명            | 설명                       | 필수 | 예시                        |
+| -------------- | ------------------------ | -- | ------------------------- |
+| `VITE_API_URL` | 백엔드 API 서버 주소 (프론트에서 사용) | ✅  | `https://api.example.com` |
+
+> ⚠️ 이 파일은 커밋하지 않도록 `.gitignore`에 등록되어 있습니다.
+
+---
+
+### 4. 의존성 설치
+
+```bash
 pnpm install
+```
 
-# 3. 개발 서버 실행
+---
+
+### 5. 로컬 개발 서버 실행
+
+```bash
 pnpm dev
 ```
 
-기본적으로 Vite 개발 서버가 `localhost:5173`에서 실행됩니다. API 호출은 `.env`에 설정된 `VITE_API_URL`을 기준으로 수행됩니다.
+* 기본 URL: [http://localhost:5173](http://localhost:5173)
 
 ---
 
-### ⚙️ 환경변수 설정 (.env.local)
+## 🚀 GitHub Actions 설정 가이드
 
-루트 디렉토리에 `.env.local` 파일을 생성하고 다음과 같이 작성합니다:
+이 프로젝트는 GitHub Actions를 통해 다음과 같은 자동화를 수행합니다:
 
-```env
-VITE_API_URL=https://openswdev.duckdns.org
-```
+### ✅ Workflow 목록
 
-> `VITE_API_URL`은 프론트엔드에서 백엔드 API 서버로 요청을 보낼 때 사용하는 기본 URL입니다. 개발 환경에서는 이를 로컬 또는 테스트 서버로 변경할 수 있습니다.
-
----
-
-### 🔐 GitHub Actions & 배포 관련 Secrets
-
-협업 또는 CI/CD에 필요한 `Repository secrets`는 아래와 같이 사용됩니다:
-
-| 이름                        | 설명                                        |
-| ------------------------- | ----------------------------------------- |
-| `AUTO_ACTIONS`            | 포크 레포로 자동 푸시 시 사용되는 Personal Access Token |
-| `CHROMATIC_PROJECT_TOKEN` | Storybook 프리뷰를 Chromatic에 배포할 때 사용되는 토큰   |
-| `GH_TOKEN`                | GitHub API 요청 및 PR 코멘트 등에 사용              |
-| `OFFICIAL_ACCOUNT_EMAIL`  | Git 커밋 및 푸시 시 사용하는 공식 계정 이메일              |
-| `VERCEL_ORG_ID`           | Vercel 조직 식별자                             |
-| `VERCEL_PROJECT_ID`       | Vercel 프로젝트 식별자                           |
-| `VERCEL_TOKEN`            | Vercel CLI 인증 및 배포용 토큰                    |
-
-CI에서 사용하는 Workflows는 다음과 같습니다:
-
-#### 1. ✅ **Preview Deployments**
-
-* PR이 생성되면, Vercel로 미리보기 배포 진행
-* `.env.local`은 Vercel 설정에서 자동으로 로딩됨 (`vercel pull`)
-
-#### 2. 📚 **Storybook Preview**
-
-* `src/components/atoms/**` 경로에 변경이 생기면 Chromatic으로 Storybook 빌드 & 공유 링크 PR에 자동 코멘트
-
-#### 3. 🔄 **Fork Sync**
-
-* `main` 브랜치에 푸시가 생기면 포크된 레포에도 자동 동기화 (협업자 코드 최신화)
+| Workflow 이름                    | 트리거 조건                                 | 주요 동작                                    |
+| ------------------------------ | -------------------------------------- | ---------------------------------------- |
+| **Build & Deploy Storybook**   | PR 생성 시 (`src/components/atoms/**`) 변경 | Chromatic에 Storybook 업로드 후 PR에 댓글로 링크 공유 |
+| **Preview**                    | 모든 PR 생성 시                             | Vercel Preview 배포 및 PR에 링크 공유            |
+| **Synchronize to forked repo** | `main` 브랜치 push 시                      | 지정된 포크 저장소로 코드 자동 푸시                     |
 
 ---
 
-### 🧪 유닛 테스트 & 린팅
+## 🔐 GitHub Actions Secrets 설정 가이드
+
+GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등록할 수 있습니다:
+
+> **경로**:
+> GitHub Repository → `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
+
+각 항목의 발급 및 설정 방법은 다음과 같습니다:
+
+---
+
+### 1. `CHROMATIC_PROJECT_TOKEN`
+
+* **용도**: Chromatic에 Storybook을 배포할 때 인증
+* **발급 방법**:
+
+  1. [https://www.chromatic.com/](https://www.chromatic.com/) 에 로그인
+  2. 프로젝트 생성 후, 좌측 메뉴 → **"Manage project"**
+  3. **"Project Token"** 복사
+* **GitHub Secrets에 추가**:
+
+  * Name: `CHROMATIC_PROJECT_TOKEN`
+  * Value: 위에서 복사한 Token
+
+---
+
+### 2. `GH_TOKEN` 또는 `GITHUB_TOKEN`
+
+* **용도**: PR에 자동 댓글을 작성하거나, Chromatic 등 외부 연동 시 인증
+* **발급 방법**:
+
+  1. GitHub → [Developer Settings → Personal access tokens (classic)](https://github.com/settings/tokens)
+  2. "Generate new token (classic)" 클릭
+  3. **권한 설정**:
+
+     * `repo` (전체)
+     * `write:discussion`
+     * `write:packages`
+     * `workflow`
+  4. Token 생성 후 복사 (한 번만 보여집니다)
+* **GitHub Secrets에 추가**:
+
+  * Name: `GH_TOKEN`
+  * Value: 위에서 생성한 Personal Access Token
+
+> ⚠️ 이 토큰은 **PR 댓글 작성**, **Chromatic 인증** 등에 쓰입니다.
+
+---
+
+### 3. `AUTO_ACTIONS`
+
+* **용도**: `main` 브랜치 변경 시, 포크된 저장소로 자동 푸시
+* **발급 방법**: 본인의 GitHub 계정에서 **PAT (Personal Access Token)** 발급
+
+  * 위의 `GH_TOKEN` 발급 절차와 동일하되, 권한에 다음을 포함해야 함:
+
+    * `repo`
+    * `workflow`
+    * `admin:repo_hook`
+* **GitHub Secrets에 추가**:
+
+  * Name: `AUTO_ACTIONS`
+  * Value: 생성한 토큰
+
+---
+
+### 4. `OFFICIAL_ACCOUNT_EMAIL`
+
+* **용도**: Git user.email 설정에 사용됨 (포크 푸시 시)
+* **설정 방법**: 푸시용 GitHub 계정의 등록된 이메일 사용
+* **GitHub Secrets에 추가**:
+
+  * Name: `OFFICIAL_ACCOUNT_EMAIL`
+  * Value: `example@youremail.com`
+
+---
+
+## 🌐 Vercel 설정 가이드
+
+이 프로젝트는 **Vercel Preview 배포**를 GitHub Actions로 자동화하고 있습니다.
+이를 위해 Vercel 프로젝트의 **ID, Token, 환경변수** 설정이 필요합니다.
+
+---
+
+### 1. `VERCEL_TOKEN` 발급
+
+* **용도**: Vercel CLI 인증
+* **발급 방법**:
+
+  1. [Vercel Dashboard](https://vercel.com/) 접속
+  2. 오른쪽 상단 사용자 아이콘 클릭 → **Settings**
+  3. 왼쪽 메뉴 → **Tokens** → `Create Token`
+  4. 원하는 이름 입력 → `Create`
+* **GitHub Secrets에 추가**:
+
+  * Name: `VERCEL_TOKEN`
+  * Value: 위에서 복사한 토큰
+
+---
+
+### 2. `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` 확인
+
+* **용도**: Vercel CLI에서 프로젝트를 빌드/배포하기 위한 ID 정보
+* **확인 방법**:
+
+  1. Vercel CLI 설치 (이미 자동 설치됨)
+  2. 아래 명령어 실행:
 
 ```bash
-# 테스트 실행
-pnpm test
-
-# 린트 실행
-pnpm lint
+vercel pull --yes --environment=preview --token=YOUR_VERCEL_TOKEN
 ```
+
+* 위 명령을 실행하면 `.vercel` 폴더 안에 `project.json`이 생성되고, 그 안에 `orgId`, `projectId`가 포함됩니다.
+
+* 또는, 수동 확인:
+
+  * [Vercel Dashboard](https://vercel.com/dashboard)
+  * 프로젝트 클릭 → `Settings` → 하단의 `Project ID`, `Org ID` 확인 가능
+
+* **GitHub Secrets에 추가**:
+
+  * Name: `VERCEL_PROJECT_ID` → Vercel의 Project ID
+  * Name: `VERCEL_ORG_ID` → Vercel의 Organization ID
+
+---
+
+### 3. Vercel 환경 변수 설정 (`VITE_API_URL`)
+
+> 이 프로젝트에서는 프론트엔드에서 사용할 API 주소를 **Vercel 환경 변수로 따로 지정**해야 합니다.
+
+* **경로**:
+
+  * Vercel → 프로젝트 선택 → `Settings` → `Environment Variables`
+
+* **등록 값**:
+
+| Key            | Value 예시                  | Environment    |
+| -------------- | ------------------------- | -------------- |
+| `VITE_API_URL` | `https://api.example.com` | All or Preview |
+
+> 🔁 이 변수는 `.env`에도 동일하게 설정되어야 합니다.
+
+---
+
+## 📝 요약: GitHub Secrets & Vercel 세팅 리스트
+
+| 항목                        | 설정 위치          | 발급 방법 요약                     |
+| ------------------------- | -------------- | ---------------------------- |
+| `CHROMATIC_PROJECT_TOKEN` | GitHub Secrets | Chromatic → Manage Project   |
+| `GH_TOKEN`                | GitHub Secrets | GitHub Personal Token (PAT)  |
+| `AUTO_ACTIONS`            | GitHub Secrets | GitHub PAT                   |
+| `OFFICIAL_ACCOUNT_EMAIL`  | GitHub Secrets | GitHub 계정 이메일                |
+| `VERCEL_TOKEN`            | GitHub Secrets | Vercel → Settings → Token 생성 |
+| `VERCEL_ORG_ID`           | GitHub Secrets | Vercel Settings 또는 CLI       |
+| `VERCEL_PROJECT_ID`       | GitHub Secrets | Vercel Settings 또는 CLI       |
+| `VITE_API_URL`            | Vercel 환경 변수   | 프로젝트 Settings 내 Environment  |
+
+---
+
+## 🧑‍💻 기여 가이드
+
+### 브랜치 전략
+
+* 모든 PR은 `main` 브랜치를 대상으로 생성
+
+### 코드 작성 시 체크리스트
+
+* [ ] `pnpm lint` 통과
+* [ ] `pnpm test` 통과
+* [ ] `.env` 커밋되지 않았는지 확인
+* [ ] 커밋 메시지는 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) 스타일로 작성
+
+### PR 생성 시 자동 작업
+
+* Chromatic에서 Storybook Preview 배포 → PR에 댓글로 링크 추가
+* Vercel Preview 배포 → PR에 댓글로 배포 링크 추가
 
 ---
 
