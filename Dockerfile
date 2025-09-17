@@ -23,7 +23,7 @@ FROM node:18-slim
 WORKDIR /app
 
 # 빌드된 파일 복사
-COPY --from=builder /app/build ./build
+COPY --from=builder /app/dist ./build
 
 # 필요한 Node.js 패키지 설치 (serve 사용)
 RUN npm install -g serve
@@ -32,4 +32,4 @@ RUN npm install -g serve
 ENV NODE_ENV=production
 
 # 컨테이너가 실행될 때 HTTPS 서버 실행
-CMD ["serve", "-s", "build", "-l", "3000", "--ssl-cert", "/etc/keys/fullchain.pem", "--ssl-key", "/etc/keys/privkey.pem"]
+CMD ["serve", "-s", "build", "-l", "3000"]
