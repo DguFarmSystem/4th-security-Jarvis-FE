@@ -12,7 +12,7 @@ async function prepare() {
 
   try {
     // 서버에 /users 요청으로 연결 확인
-    const response = await fetch("https://openswdev.duckdns.org:8080/api/v1/users", {
+    const response = await fetch("https://localhost:8080/api/v1/users", {
       credentials: "include",
     });
 

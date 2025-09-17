@@ -1,6 +1,6 @@
 export function DiscoverRedirectButton() {
   const kibanaUrl =
-    "https://openswdev.duckdns.org:5601/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-5d,to:now))&_a=(columns:!(),dataSource:(dataViewId:'960e8922-87d2-4149-a808-a73fb70c28e7',type:dataView),filters:!(),interval:auto,query:(language:kuery,query:''),sort:!(!(time,desc)))";
+    "https://localhost:8080/app/discover#/?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-5d,to:now))&_a=(columns:!(),dataSource:(dataViewId:'960e8922-87d2-4149-a808-a73fb70c28e7',type:dataView),filters:!(),interval:auto,query:(language:kuery,query:''),sort:!(!(time,desc)))";
 
   return (
     <a
