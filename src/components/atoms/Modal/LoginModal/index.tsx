@@ -9,7 +9,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   const handleGitHubLogin = () => {
-    window.location.href = 'https://localhost:8080/login';
+    window.location.href = 'http://localhost:8080/login';
   };
 
   return (
