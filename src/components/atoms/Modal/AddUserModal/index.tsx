@@ -1,102 +1,125 @@
-export const AddUserModal = () => {
+import React, { useState } from "react";
+import Button from "../../Button";
+
+interface AddUserModalProps {
+  onClose: () => void;
+  onSubmit: (payload: { username: string; password: string }) => void;
+}
+
+export function AddUserModal({ onClose, onSubmit }: AddUserModalProps) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = () => {
+    if (!username.trim() || !password.trim()) {
+      setError("Username and password are required.");
+      return;
+    }
+
+    setError("");
+    onSubmit({
+      username: username.trim(),
+      password: password.trim(),
+    });
+  };
+
   return (
-    <div
-      style={{
-        width: "488px",
-        height: "356px",
-        position: "relative",
-        flexShrink: 0,
-        borderRadius: "40px",
-        border: "1px solid rgba(0, 0, 0, 0.60)",
-        background: "#FFF",
-        boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.15)",
-        padding: "17px 46px",
-        fontFamily: "var(--font-pretendard)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: "700",
-          textAlign: "center",
-          marginBottom: "8px",
-        }}
-      >
-        Add User
-      </h2>
+    <div style={overlayStyle}>
+      <div style={modalStyle}>
+        <h2 style={titleStyle}>Add User</h2>
 
-      {/* 가로선 */}
-      <div
-        style={{
-          position: "absolute",
-          top: "55px",
-          left: "0",
-          right: "0",
-          width: "100%",
-          height: "1px",
-          background: "#B9B9B9",
-        }}
-      />
+        {/* Divider */}
+        <div style={dividerStyle} />
 
-      {/* 입력 필드 묶음 */}
-<div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-    marginTop: "24px", // 가로선과의 거리
-  }}
->
-  {/* User Input */}
-  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-    <label htmlFor="user" style={labelStyle}>
-      User
-    </label>
-    <input
-      id="user"
-      type="text"
-      placeholder="Enter username"
-      style={inputStyle}
-    />
-  </div>
+        <div style={formAreaStyle}>
+          <div style={formGroupStyle}>
+            <label htmlFor="username" style={labelStyle}>Username</label>
+            <input
+              id="username"
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
 
-  {/* Email Input */}
-  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-    <label htmlFor="email" style={labelStyle}>
-      Email
-    </label>
-    <input
-      id="email"
-      type="email"
-      placeholder="Enter email"
-      style={inputStyle}
-    />
-  </div>
-</div>
+          <div style={formGroupStyle}>
+            <label htmlFor="password" style={labelStyle}>Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
 
-    {/* Role Select */}
-<div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-    marginTop: "auto",         // 위 여백을 자동으로 채움
-    marginBottom: "47px",      // 하단 여백 고정
-  }}
->
-  <label htmlFor="role" style={labelStyle}>
-    Role
-  </label>
-  <select id="role" style={inputStyle}>
-    <option value="viewer">Viewer</option>
-    <option value="editor">Editor</option>
-    <option value="admin">Admin</option>
-  </select>
-</div>
+          {error && <div style={errorStyle}>{error}</div>}
+        </div>
+
+        {/* Footer buttons */}
+        <div style={footerStyle}>
+          <Button variant="auth-cancel" onClick={onClose}>Cancel</Button>
+          <Button variant="login" onClick={handleSubmit}>Add</Button>
+        </div>
+      </div>
     </div>
   );
+};
+
+const overlayStyle: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  width: "100vw",
+  height: "100vh",
+  backgroundColor: "rgba(0, 0, 0, 0.3)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+
+const modalStyle: React.CSSProperties = {
+  width: "488px",
+  height: "356px",
+  borderRadius: "40px",
+  border: "1px solid rgba(0, 0, 0, 0.60)",
+  backgroundColor: "#FFF",
+  boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.15)",
+  padding: "24px 36px",
+  fontFamily: "var(--font-pretendard)",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const titleStyle: React.CSSProperties = {
+  fontSize: "20px",
+  fontWeight: 700,
+  textAlign: "center",
+  marginBottom: 12,
+};
+
+const dividerStyle: React.CSSProperties = {
+  width: "100%",
+  height: "1px",
+  backgroundColor: "#B9B9B9",
+  marginBottom: 20,
+};
+
+const formAreaStyle: React.CSSProperties = {
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+};
+
+const formGroupStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
 };
 
 const labelStyle: React.CSSProperties = {
@@ -111,6 +134,17 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid var(--color-gray-300)",
   padding: "0 12px",
   fontSize: "14px",
-  fontFamily: "var(--font-pretendard)",
   color: "#000",
+};
+
+const errorStyle: React.CSSProperties = {
+  color: "red",
+  fontSize: "14px",
+};
+
+const footerStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  gap: 12,
+  marginTop: "auto",
 };
