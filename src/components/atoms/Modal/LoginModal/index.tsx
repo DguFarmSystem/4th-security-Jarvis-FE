@@ -1,34 +1,64 @@
-import React from 'react';
+import { useState } from 'react';
+import axios from 'axios';
 import Button from '../../Button';
 
 interface LoginModalProps {
   isOpen: boolean;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
+function LoginModal({ isOpen }: LoginModalProps) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
   if (!isOpen) return null;
 
-  const handleGitHubLogin = () => {
-    window.location.href = 'http://localhost:8080/login';
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:8080/login', {
+        username,
+        password,
+      });
+
+      console.log('로그인 성공:', response.data);
+      // TODO: 로그인 성공 처리 (예: 토큰 저장, 리디렉션 등)
+    } catch (err) {
+      console.error('로그인 실패:', err);
+      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+    }
   };
 
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        {/* GitHub 로고 */}
-       <img src="/images/GithubLogo.png" alt="GitHub Logo" style={styles.logo} />
-        {/* 로그인 버튼 */}
-        <Button variant="login" onClick={handleGitHubLogin} style={styles.loginButton}>
-          Continue with GitHub
+        <img src="/images/GithubLogo.png" alt="GitHub Logo" style={styles.logo} />
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={styles.input}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+
+        {error && <div style={styles.error}>{error}</div>}
+
+        <Button variant="login" onClick={handleLogin} style={styles.loginButton}>
+          로그인
         </Button>
       </div>
     </div>
   );
-};
+}
 
-export default LoginModal;
-
-// 스타일 정의
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
     position: 'fixed',
@@ -52,30 +82,38 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     paddingBottom: 70,
     boxSizing: 'border-box',
   },
-  closeButton: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    background: 'transparent',
-    border: 'none',
-    fontSize: 24,
-    color: '#999',
-    cursor: 'pointer',
-  },
   loginButton: {
-    margin: '0 auto',
+    marginTop: 20,
+    width: 300,
+    height: 44,
   },
   logo: {
-  position: 'absolute',
-  top: 9, 
-  left: '50%',
-  transform: 'translateX(-50%)', 
-  width: 443,
-  height: 164,
-  objectFit: 'contain',
-},
+    position: 'absolute',
+    top: 9,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 443,
+    height: 164,
+    objectFit: 'contain',
+  },
+  input: {
+    width: 300,
+    height: 44,
+    marginTop: 12,
+    padding: '0 12px',
+    border: '1px solid #ccc',
+    borderRadius: 6,
+    fontSize: 16,
+  },
+  error: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 10,
+  },
 };
+
+export default LoginModal;

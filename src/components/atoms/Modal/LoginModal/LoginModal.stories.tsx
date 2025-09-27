@@ -11,15 +11,17 @@ export default meta;
 
 type Story = StoryObj<typeof LoginModal>;
 
-export const Default: Story = {
-  render: () => {
-    const [isOpen, setIsOpen] = useState(true);
+const LoginModalStoryComponent = () => {
+  const [isOpen, setIsOpen] = useState(true);
 
-    return (
-      <>
-        <button onClick={() => setIsOpen(true)}>로그인 모달 열기</button>
-        <LoginModal isOpen={isOpen} />
-      </>
-    );
-  },
+  return (
+    <>
+      <button onClick={() => setIsOpen(true)}>로그인 모달 열기</button>
+      <LoginModal isOpen={isOpen} />
+    </>
+  );
+};
+
+export const Default: Story = {
+  render: () => <LoginModalStoryComponent />,
 };
