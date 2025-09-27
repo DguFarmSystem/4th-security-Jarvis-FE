@@ -1,5 +1,5 @@
 import axios from "axios";
-import { startMSW } from "../mocks/startMSW";
+// import { startMSW } from "../mocks/startMSW";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -28,17 +28,17 @@ api.interceptors.response.use(
   async (error) => {
     console.error("❌ 응답 오류 발생", error);
 
-    const config = error?.config;
-    const isNetworkError =
-      !error.response &&
-      (error.code === "ERR_NETWORK" ||
-        error.message?.includes("Network Error"));
+    // const config = error?.config;
+    // const isNetworkError =
+    //   !error.response &&
+    //   (error.code === "ERR_NETWORK" ||
+    //     error.message?.includes("Network Error"));
 
-    if (isNetworkError && config) {
-      console.log("🌐 네트워크 오류로 MSW 시작 시도");
-      await startMSW();
-      return api.request(config);
-    }
+    // if (isNetworkError && config) {
+    //   console.log("🌐 네트워크 오류로 MSW 시작 시도");
+    //   await startMSW();
+    //   return api.request(config);
+    // }
 
     return Promise.reject(error);
   }
