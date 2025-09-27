@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Button from '../../Button';
 
@@ -10,6 +11,7 @@ function LoginModal({ isOpen }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -21,7 +23,15 @@ function LoginModal({ isOpen }: LoginModalProps) {
       });
 
       console.log('로그인 성공:', response.data);
-      // TODO: 로그인 성공 처리 (예: 토큰 저장, 리디렉션 등)
+      const { accessToken } = response.data;
+
+      if (!accessToken) {
+        throw new Error('No token in response');
+      }
+
+      localStorage.setItem('accessToken', accessToken);
+      navigate('/');
+
     } catch (err) {
       console.error('로그인 실패:', err);
       setError('아이디 또는 비밀번호가 올바르지 않습니다.');
