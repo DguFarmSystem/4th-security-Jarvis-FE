@@ -23,13 +23,13 @@ function LoginModal({ isOpen }: LoginModalProps) {
       });
 
       console.log('로그인 성공:', response.data);
-      const { accessToken } = response.data;
+      const { token } = response.data;
 
-      if (!accessToken) {
+      if (!token) {
         throw new Error('No token in response');
       }
 
-      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('accessToken', token);
       navigate('/');
 
     } catch (err) {
