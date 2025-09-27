@@ -187,7 +187,7 @@ const upsertRole = async (name: string, permissions: string[]) => {
           user: u.metadata.name,
           role: u.spec.roles.join(", "),
         }))}
-        
+        onAddUser={() => setAddUserModalOpen(true)}
         onUpdateUser={() => {
           setSelectedUser({ username: "", roles: [] });
           setUpdateUserModalOpen(true);
