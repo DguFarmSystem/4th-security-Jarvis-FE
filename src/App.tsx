@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { api } from "./utils/axios";
+// import { api } from "./utils/axios";
 import LoginModal from "./components/atoms/Modal/LoginModal";
 import DashboardPage from "./pages/DashboardPage";
 import ResourcePage from "./pages/ResourcePage";
@@ -15,11 +15,9 @@ import "./index.css";
 function App() {
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
 
-  useEffect(() => {
-    api
-      .get("/users", { withCredentials: true })
-      .then(() => setAuthenticated(true))
-      .catch(() => setAuthenticated(false));
+   useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setAuthenticated(!!token);
   }, []);
 
   return (
