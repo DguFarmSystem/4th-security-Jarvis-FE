@@ -14,10 +14,15 @@ type Story = StoryObj<typeof LoginModal>;
 const LoginModalStoryComponent = () => {
   const [isOpen, setIsOpen] = useState(true);
 
+  const handleLoginSuccess = (token: string) => {
+    alert(`로그인 성공! accessToken: ${token}`);
+    setIsOpen(false);
+  };
+
   return (
     <>
       <button onClick={() => setIsOpen(true)}>로그인 모달 열기</button>
-      <LoginModal isOpen={isOpen} />
+      <LoginModal isOpen={isOpen} onSuccess={handleLoginSuccess}/>
     </>
   );
 };

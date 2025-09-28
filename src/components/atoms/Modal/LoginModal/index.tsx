@@ -8,7 +8,7 @@ interface LoginModalProps {
   onSuccess: (token: string) => void;
 }
 
-function LoginModal({ isOpen }: LoginModalProps) {
+function LoginModal({ isOpen, onSuccess }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,12 +25,12 @@ function LoginModal({ isOpen }: LoginModalProps) {
 
       console.log('로그인 성공:', response.data);
       const { token } = response.data;
-      
+
       if (!token) {
         throw new Error('No token in response');
       }
 
-      localStorage.setItem('accessToken', token);
+      onSuccess(token);
       navigate('/');
 
     } catch (err) {
