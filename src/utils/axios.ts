@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logoutOn401 } from "./auth";
 // import { startMSW } from "../mocks/startMSW";
 
 const API_BASE = "http://localhost:8080";
@@ -28,6 +29,9 @@ api.interceptors.response.use(
   },
   async (error) => {
     console.error("응답 오류 발생", error);
+    if (error.response?.status === 401) {
+      logoutOn401();
+    }
 
     // const config = error?.config;
     // const isNetworkError =

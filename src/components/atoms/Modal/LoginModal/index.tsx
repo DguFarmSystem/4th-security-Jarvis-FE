@@ -5,6 +5,7 @@ import Button from '../../Button';
 
 interface LoginModalProps {
   isOpen: boolean;
+  onSuccess: (token: string) => void;
 }
 
 function LoginModal({ isOpen }: LoginModalProps) {
@@ -24,7 +25,7 @@ function LoginModal({ isOpen }: LoginModalProps) {
 
       console.log('로그인 성공:', response.data);
       const { token } = response.data;
-
+      
       if (!token) {
         throw new Error('No token in response');
       }
