@@ -63,16 +63,22 @@ export default function ManagementPage() {
 
   // 삭제/업데이트
   const handleUserDelete = async () => {
-    if (!selectedUser) return;
-    try {
-      await api.delete(`/users/${selectedUser.username}`);
-      setDeleteModalOpen(false);
-      setSelectedUser(null);
-      fetchUsers();
-    } catch (err) {
-      console.error("사용자 삭제 실패", err);
-    }
-  };
+  if (!selectedUser) return;
+
+  try {
+    await api.delete("/delete", {
+      data: {
+        username: selectedUser.username,
+      },
+    });
+    setDeleteModalOpen(false);
+    setSelectedUser(null);
+    fetchUsers();
+  } catch (err) {
+    console.error("사용자 삭제 실패", err);
+    alert("사용자 삭제에 실패했습니다.");
+  }
+};
 
   const handleRoleDelete = async () => {
     if (!selectedRole) return;
