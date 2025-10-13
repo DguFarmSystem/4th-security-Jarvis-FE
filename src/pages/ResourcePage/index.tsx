@@ -5,7 +5,6 @@ import { ResourceType } from "@/components/atoms/Filters";
 import type { ResourceOption } from "@/components/atoms/Filters";
 import { api } from "@/utils/axios";
 import { mockApps, mockDatabases } from "@/mocks/mockData";
-// import { getCurrentUsernameFromCookie } from "../../utils/auth";
 import { connectToSSHWebSocket } from "@/utils/ws";
 import Button from "@/components/atoms/Button";
 import { AddResourceModal } from "@/components/atoms/Modal/AddResourceModal";
