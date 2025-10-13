@@ -11,5 +11,6 @@ export const loginAtom = atom(null, (_get, set, token: string) => {
 
 export const logoutAtom = atom(null, (_get, set) => {
   localStorage.removeItem("accessToken");
+  document.cookie = "auth_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   set(isAuthenticatedAtom, false); 
 });

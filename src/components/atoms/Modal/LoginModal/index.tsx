@@ -30,6 +30,7 @@ function LoginModal({ isOpen, onSuccess }: LoginModalProps) {
         throw new Error('No token in response');
       }
 
+      document.cookie = `auth_token=${token}; path=/; max-age=3600;`
       onSuccess(token);
       navigate('/');
 

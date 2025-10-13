@@ -45,7 +45,7 @@ export default function ResourcePage() {
                     return;
                 }
         // 토큰을 포함하여 웹소켓 연결을 시도합니다.
-        const socket = connectToSSHWebSocket(nodeHost, loginUser, token); 
+        const socket = connectToSSHWebSocket(nodeHost, loginUser); 
         setTerminalSocket(socket);
       },
           onDeleteClick: async () => {

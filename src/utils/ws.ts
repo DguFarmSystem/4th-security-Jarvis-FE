@@ -1,5 +1,5 @@
-export function connectToSSHWebSocket(nodeHost: string, loginUser: string, token: string) {
-  const wsURL = `ws://localhost:8080/ws?node_host=${nodeHost}&login_user=${loginUser}&token=${token}`;
+export function connectToSSHWebSocket(nodeHost: string, loginUser: string) {
+  const wsURL = `ws://localhost:8080/ws?node_host=${nodeHost}&login_user=${loginUser}`;
 
   const socket = new WebSocket(wsURL);
 
