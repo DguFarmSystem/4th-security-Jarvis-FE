@@ -2,7 +2,7 @@ import axios from "axios";
 import { logoutOn401 } from "./auth";
 // import { startMSW } from "../mocks/startMSW";
 
-const API_BASE = "http://localhost:8080";
+export const API_BASE = "http://localhost:8080";
 
 export const api = axios.create({
   baseURL: `${API_BASE}/api/v1`,

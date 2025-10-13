@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Log } from "@/components/atoms/Log";
 import type { AuditLog, RawAudit } from "@/types/auditTypes";
 import type { SessionLog } from "@/types/SessionTypes";
+import type { AnalyzeSessionRequest, AnalyzeSessionResponse } from "@/types/analyzeTypes";
+import { API_BASE } from "@/utils/axios";
 import { api } from "@/utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 import FilterPanel from "@/components/atoms/FilterPanel";
@@ -10,7 +12,10 @@ export default function SessionPage() {
   const [rawAudits, setRawAudits] = useState<RawAudit[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
+  const [sessionMetaMap, setSessionMetaMap] = useState<Record<string, any>>({});
   const [sessionOutput, setSessionOutput] = useState<string>("");
+  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
 
   const [currentSessionID, setCurrentSessionID] = useState<string | null>(null);
 
@@ -42,11 +47,14 @@ export default function SessionPage() {
 
     setSessionOutput("");
     setCurrentSessionID(sessionID);
+    setAnalysisResult(null);
+    setLoadingAnalysis(true);
+
     queueRef.current = [];
     processingRef.current = false;
 
     const eventSource = new EventSource(
-      `${import.meta.env.VITE_API_URL}/api/v1/audit/session/${sessionID}`,
+      `${API_BASE}/api/v1/audit/session/${sessionID}`,
       { withCredentials: true }
     );
 
@@ -70,6 +78,36 @@ export default function SessionPage() {
     eventSourceRef.current = eventSource;
   };
 
+  const analyzeSession = async (sessionID: string) => {
+    const sessionMeta = sessionMetaMap[sessionID];
+
+    if (!sessionMeta) {
+      console.error("세션 메타데이터를 찾을 수 없습니다.");
+      setLoadingAnalysis(false);
+      return;
+    }
+
+    const payload: AnalyzeSessionRequest = {
+      SessionID: sessionMeta.sid,
+      User: sessionMeta.user,
+      ServerID: sessionMeta.server_id,
+      ServerAddr: sessionMeta.server_addr ?? sessionMeta["addr.local"] ?? "unknown",
+      SessionStart: sessionMeta.session_start,
+      SessionEnd: sessionMeta.session_stop,
+      Transcript: sessionOutput || "세션 로그 없음",
+    };
+
+    try {
+      const res = await api.post<AnalyzeSessionResponse>("/api/v1/analyze", payload);
+      setAnalysisResult(res.data);
+    } catch (err) {
+      console.error("분석 요청 실패:", err);
+      setAnalysisResult({ error: "분석 요청 실패" });
+    } finally {
+      setLoadingAnalysis(false);
+    }
+  };
+
   const processQueue = async () => {
     if (processingRef.current) return;
     processingRef.current = true;
@@ -80,6 +118,10 @@ export default function SessionPage() {
       await new Promise(res => setTimeout(res, safeDelay));
     }
     processingRef.current = false;
+    // 모든 출력이 끝난 후 분석 요청
+  if (currentSessionID && !analysisResult) {
+    analyzeSession(currentSessionID);
+  }
   };
 
   const cleanData = (input: string) => input.replace(/.\x08/g, "");
@@ -97,9 +139,11 @@ export default function SessionPage() {
     });
 
     api.get("/audit/session").then((res) => {
+      const metaMap: Record<string, any> = {};
       const sessions: SessionLog[] = res.data.map((s: any) => {
         const start = new Date(s.session_start);
         const stop = new Date(s.session_stop);
+        metaMap[s.sid] = s; // 세션 ID 기준으로 원본 저장
         return {
           user: s.user ?? "unknown",
           server: s.server_hostname ?? "unknown",
@@ -109,6 +153,7 @@ export default function SessionPage() {
         };
       });
       setSessionLogs(sessions);
+      setSessionMetaMap(metaMap);
     });
 
     return () => { if (eventSourceRef.current) eventSourceRef.current.close(); };
@@ -166,7 +211,8 @@ export default function SessionPage() {
         open={Boolean(currentSessionID)}
         title="View"
         sessionId={currentSessionID ?? undefined}
-        output={sessionOutput}
+        loading={loadingAnalysis}
+        analysisResult={analysisResult}
         onClose={() => {
           if (eventSourceRef.current) eventSourceRef.current.close();
           eventSourceRef.current = null;
@@ -174,6 +220,7 @@ export default function SessionPage() {
           setSessionOutput("");
           queueRef.current = [];
           processingRef.current = false;
+          setAnalysisResult(null);
         }}
       />
     </div>
