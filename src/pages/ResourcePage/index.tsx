@@ -28,7 +28,7 @@ export default function ResourcePage() {
         const fullAddr = node.spec.addr || node.spec.hostname || node.metadata.name;
         const nodeHost = fullAddr.includes(':') ? fullAddr.split(':')[0] : fullAddr;
         const nodeName = node.metadata.name; // 삭제용 식별자
-        const loginUser = "ubuntu";
+        const loginUser = "root";
 
         return {
           name: nodeHost,
