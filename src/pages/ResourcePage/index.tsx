@@ -37,9 +37,17 @@ export default function ResourcePage() {
           nodeName,
           loginUser,
           onActionClick: () => {
-            const socket = connectToSSHWebSocket(nodeHost, loginUser);
-            setTerminalSocket(socket);
-          },
+         const token = localStorage.getItem("accessToken"); 
+
+                if (!token) {
+                    console.error("인증 토큰을 찾을 수 없습니다. 로그인 상태를 확인하세요.");
+                    alert("로그인이 필요합니다.");
+                    return;
+                }
+        // 토큰을 포함하여 웹소켓 연결을 시도합니다.
+        const socket = connectToSSHWebSocket(nodeHost, loginUser, token); 
+        setTerminalSocket(socket);
+      },
           onDeleteClick: async () => {
             try {
               await api.delete(`/resources/nodes/${nodeName}`);
