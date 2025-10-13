@@ -25,7 +25,8 @@ export default function ResourcePage() {
       const res = await api.get("/resources/nodes");
 
       const servers: Resource[] = res.data.map((node: any) => {
-        const nodeHost = node.spec.hostname ?? node.metadata.name;
+        const fullAddr = node.spec.addr || node.spec.hostname || node.metadata.name;
+        const nodeHost = fullAddr.includes(':') ? fullAddr.split(':')[0] : fullAddr;
         const nodeName = node.metadata.name; // 삭제용 식별자
         const loginUser = "root";
 
