@@ -4,6 +4,7 @@ import type { AuditLog, RawAudit } from "@/types/auditTypes";
 import type { SessionLog } from "@/types/SessionTypes";
 import type { AnalyzeSessionRequest, AnalyzeSessionResponse } from "@/types/analyzeTypes";
 import { api } from "@/utils/axios";
+import { API_BASE } from "@/utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 import FilterPanel from "@/components/atoms/FilterPanel";
 
@@ -137,7 +138,14 @@ export default function SessionPage() {
     };
 
     try {
-      const res = await api.post<AnalyzeSessionResponse>("/api/v1/analyze", payload);
+       const res = await api.post<AnalyzeSessionResponse>(
+        "/api/v1/analyze", 
+        payload,
+        {
+          // 8080 대신 8000번 포트 서버로 요청하도록 baseURL을 오버라이드
+          baseURL: API_BASE.replace("8080", "8000"),
+        }
+      );
       setAnalysisResult(res.data);
     } catch (err) {
       console.error("분석 요청 실패:", err);
