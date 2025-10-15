@@ -1,7 +1,11 @@
 import { atom } from "jotai";
 
+const getInitialAuthStatus = () => {
+    return !!localStorage.getItem("accessToken");
+};
+
 // 상태만 저장하는 writable atom
-export const isAuthenticatedAtom = atom<boolean>(false);
+export const isAuthenticatedAtom = atom<boolean>(getInitialAuthStatus());
 
 // 로그인 상태 갱신용 atom
 export const loginAtom = atom(null, (_get, set, token: string) => {
