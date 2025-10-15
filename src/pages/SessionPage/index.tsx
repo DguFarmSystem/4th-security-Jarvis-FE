@@ -3,7 +3,6 @@ import { Log } from "@/components/atoms/Log";
 import type { AuditLog, RawAudit } from "@/types/auditTypes";
 import type { SessionLog } from "@/types/SessionTypes";
 import type { AnalyzeSessionRequest, AnalyzeSessionResponse } from "@/types/analyzeTypes";
-import { API_BASE } from "@/utils/axios";
 import { api } from "@/utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 import FilterPanel from "@/components/atoms/FilterPanel";
@@ -37,45 +36,85 @@ export default function SessionPage() {
   }, [eventTypeOptions]);
 
   // --- SSE/세션 보기 로직 동일 ---
-  const queueRef = useRef<any[]>([]);
-  const processingRef = useRef(false);
+  // const queueRef = useRef<any[]>([]);
+  // const processingRef = useRef(false);
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  const handleViewSession = (sessionID: string) => {
+  const handleViewSession = async (sessionID: string) => {
     if (!sessionID) return;
-    if (eventSourceRef.current) eventSourceRef.current.close();
+    // if (eventSourceRef.current) eventSourceRef.current.close();
 
     setSessionOutput("");
     setCurrentSessionID(sessionID);
     setAnalysisResult(null);
     setLoadingAnalysis(true);
 
-    queueRef.current = [];
-    processingRef.current = false;
+    // queueRef.current = [];
+    // processingRef.current = false;
 
-    const eventSource = new EventSource(
-      `${API_BASE}/api/v1/audit/session/${sessionID}`,
-      { withCredentials: true }
-    );
+    try {
+    // 1. axios를 사용하여 단일 HTTP GET 요청
+    // 백엔드가 { "log": "세션로그 전체 텍스트" } 와 같은 JSON을 반환한다고 가정
+    const res = await api.get<
+            { log: string } | { error: string }
+        >(
+            `/audit/session/${sessionID}`
+        );
+    
+    // 2. 응답 데이터 처리
+        // 'log' 속성이 있는지 확인하고 사용하거나, 'error' 속성을 확인하여 사용
+        let rawLog: string;
 
-    eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
-      try {
-        const payload = JSON.parse(e.data);
-        if (payload.type === "print") {
-          queueRef.current.push(payload);
-          processQueue();
+        if ('log' in res.data && res.data.log) {
+            // 성공적으로 log가 반환된 경우
+            rawLog = res.data.log;
+        } else if ('error' in res.data && res.data.error) {
+            // 백엔드가 JSON 응답 본문에 error 필드를 포함하여 반환한 경우 (HTTP 200 OK일 때)
+            rawLog = `[오류] ${res.data.error}`;
+            console.error("세션 로그 API 응답 오류:", res.data.error);
+        } else {
+            // 예상치 못한 응답 포맷인 경우
+            rawLog = "세션 로그를 불러왔으나, 응답 포맷을 알 수 없습니다.";
         }
-      } catch (err) {
-        console.error("SSE 파싱 에러:", err);
-      }
-    });
 
-    eventSource.onerror = (e) => {
-      console.error("SSE 연결 오류:", e);
-      eventSource.close();
-    };
+        const fullLog = cleanData(rawLog); 
+        setSessionOutput(fullLog);
 
-    eventSourceRef.current = eventSource;
+        // 3. 로그를 모두 받은 후 분석 요청 (성공했을 때만 분석 요청하는 것이 더 안전할 수 있음)
+        if ('log' in res.data && res.data.log) {
+            analyzeSession(sessionID);
+        } else {
+            setLoadingAnalysis(false); // 분석 요청을 건너뛰었으므로 loading 상태를 false로
+        }
+    
+  } catch (err) {
+    console.error("세션 로그 요청 실패:", err);
+    setSessionOutput("세션 로그를 불러오는 데 실패했습니다.");
+    setLoadingAnalysis(false);
+  }
+    // const eventSource = new EventSource(
+    //   `${API_BASE}/api/v1/audit/session/${sessionID}`,
+    //   { withCredentials: true }
+    // );
+
+    // eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
+    //   try {
+    //     const payload = JSON.parse(e.data);
+    //     if (payload.type === "print") {
+    //       queueRef.current.push(payload);
+    //       processQueue();
+    //     }
+    //   } catch (err) {
+    //     console.error("SSE 파싱 에러:", err);
+    //   }
+    // });
+
+    // eventSource.onerror = (e) => {
+    //   console.error("SSE 연결 오류:", e);
+    //   eventSource.close();
+    // };
+
+    // eventSourceRef.current = eventSource;
   };
 
   const analyzeSession = async (sessionID: string) => {
@@ -108,21 +147,21 @@ export default function SessionPage() {
     }
   };
 
-  const processQueue = async () => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-    while (queueRef.current.length > 0) {
-      const { data, delay } = queueRef.current.shift();
-      setSessionOutput(prev => prev + cleanData(data));
-      const safeDelay = Math.min(delay ?? 0, 300);
-      await new Promise(res => setTimeout(res, safeDelay));
-    }
-    processingRef.current = false;
-    // 모든 출력이 끝난 후 분석 요청
-  if (currentSessionID && !analysisResult) {
-    analyzeSession(currentSessionID);
-  }
-  };
+  // const processQueue = async () => {
+  //   if (processingRef.current) return;
+  //   processingRef.current = true;
+  //   while (queueRef.current.length > 0) {
+  //     const { data, delay } = queueRef.current.shift();
+  //     setSessionOutput(prev => prev + cleanData(data));
+  //     const safeDelay = Math.min(delay ?? 0, 300);
+  //     await new Promise(res => setTimeout(res, safeDelay));
+  //   }
+  //   processingRef.current = false;
+  //   // 모든 출력이 끝난 후 분석 요청
+  // if (currentSessionID && !analysisResult) {
+  //   analyzeSession(currentSessionID);
+  // }
+  // };
 
   const cleanData = (input: string) => input.replace(/.\x08/g, "");
 
@@ -214,12 +253,12 @@ export default function SessionPage() {
         loading={loadingAnalysis}
         analysisResult={analysisResult}
         onClose={() => {
-          if (eventSourceRef.current) eventSourceRef.current.close();
-          eventSourceRef.current = null;
+          // if (eventSourceRef.current) eventSourceRef.current.close();
+          // eventSourceRef.current = null;
           setCurrentSessionID(null);
           setSessionOutput("");
-          queueRef.current = [];
-          processingRef.current = false;
+          // queueRef.current = [];
+          // processingRef.current = false;
           setAnalysisResult(null);
         }}
       />

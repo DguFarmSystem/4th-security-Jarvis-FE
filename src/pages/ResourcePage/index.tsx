@@ -86,7 +86,6 @@ export default function ResourcePage() {
 
   useEffect(() => {
     fetchResources();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTypes]);
 
   const handleToggle = (index: number, checked: boolean) => {
