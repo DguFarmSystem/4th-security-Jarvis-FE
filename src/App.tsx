@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { api } from "./utils/axios";
+import { useAtom } from "jotai";
+import { isAuthenticatedAtom, loginAtom, logoutAtom } from "@/store/authAtoms";
 import LoginModal from "./components/atoms/Modal/LoginModal";
 import DashboardPage from "./pages/DashboardPage";
 import ResourcePage from "./pages/ResourcePage";
@@ -9,24 +10,24 @@ import ManagementPage from "./pages/ManagementPage";
 import { Tab } from "./components/atoms/Tab";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./queryClient";
+import { registerLogoutHandler } from "./utils/auth";
 import "../src/styles/global.css";
 import "./index.css";
 
 function App() {
-  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated] = useAtom(isAuthenticatedAtom);
+  const [, login] = useAtom(loginAtom);
+  const [, logout] = useAtom(logoutAtom);
 
-  useEffect(() => {
-    api
-      .get("/users", { withCredentials: true })
-      .then(() => setAuthenticated(true))
-      .catch(() => setAuthenticated(false));
-  }, []);
+   useEffect(() => {
+    registerLogoutHandler(() => logout());
+  }, [logout]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         {!isAuthenticated ? (
-          <LoginModal isOpen={true} />
+          <LoginModal isOpen={true} onSuccess={login}/>
         ) : (
           <div className="layout-wrapper">
             <div className="layout-box">

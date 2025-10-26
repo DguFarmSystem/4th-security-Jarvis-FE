@@ -80,6 +80,14 @@ export const Connect: Story = {
 export const AddUser: Story = {
   args: {
     ...baseArgs,
+    variant: 'addUser',
+    children: '+ Add User',
+  },
+};
+
+export const UpdateUser: Story = {
+  args: {
+    ...baseArgs,
     variant: 'updateUser',
     children: '+ Update User',
   },

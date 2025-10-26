@@ -5,7 +5,7 @@ import { mockNodes } from "./mockNodes";
 import { mockEvents } from "./mockEvents";
 import { mockSessions } from "./mockSessions";
 
-const API_HOST = "https://openswdev.duckdns.org:8080";
+const API_HOST = "https://localhost:8080";
 const paths = (p: string) => [p, `${API_HOST}${p}`];
 const mockToken = 'mock-jwt-token';
 let users = [...mockUsers];

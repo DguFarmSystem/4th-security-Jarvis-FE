@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 
+export const isAddUserModalOpenAtom = atom(false);
 export const isUpdateUserModalOpenAtom = atom(false);
 export const isUpdateRoleModalOpenAtom = atom(false);
 export const isDeleteConfirmModalOpenAtom = atom(false);

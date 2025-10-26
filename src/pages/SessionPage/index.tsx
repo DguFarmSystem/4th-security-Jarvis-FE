@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Log } from "@/components/atoms/Log";
 import type { AuditLog, RawAudit } from "@/types/auditTypes";
 import type { SessionLog } from "@/types/SessionTypes";
+import type { AnalyzeSessionRequest, AnalyzeSessionResponse } from "@/types/analyzeTypes";
 import { api } from "@/utils/axios";
+import { API_BASE } from "@/utils/axios";
 import { SessionViewModal } from "@/components/atoms/Modal/SessionViewModal";
 import FilterPanel from "@/components/atoms/FilterPanel";
 
@@ -10,7 +12,10 @@ export default function SessionPage() {
   const [rawAudits, setRawAudits] = useState<RawAudit[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
+  const [sessionMetaMap, setSessionMetaMap] = useState<Record<string, any>>({});
   const [sessionOutput, setSessionOutput] = useState<string>("");
+  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
+  const [loadingAnalysis, setLoadingAnalysis] = useState(false);
 
   const [currentSessionID, setCurrentSessionID] = useState<string | null>(null);
 
@@ -32,55 +37,139 @@ export default function SessionPage() {
   }, [eventTypeOptions]);
 
   // --- SSE/세션 보기 로직 동일 ---
-  const queueRef = useRef<any[]>([]);
-  const processingRef = useRef(false);
+  // const queueRef = useRef<any[]>([]);
+  // const processingRef = useRef(false);
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  const handleViewSession = (sessionID: string) => {
+  const handleViewSession = async (sessionID: string) => {
     if (!sessionID) return;
-    if (eventSourceRef.current) eventSourceRef.current.close();
+    // if (eventSourceRef.current) eventSourceRef.current.close();
 
     setSessionOutput("");
     setCurrentSessionID(sessionID);
-    queueRef.current = [];
-    processingRef.current = false;
+    setAnalysisResult(null);
+    setLoadingAnalysis(true);
 
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_API_URL}/api/v1/audit/session/${sessionID}`,
-      { withCredentials: true }
-    );
+    // queueRef.current = [];
+    // processingRef.current = false;
 
-    eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
-      try {
-        const payload = JSON.parse(e.data);
-        if (payload.type === "print") {
-          queueRef.current.push(payload);
-          processQueue();
+    try {
+    // 1. axios를 사용하여 단일 HTTP GET 요청
+    // 백엔드가 { "log": "세션로그 전체 텍스트" } 와 같은 JSON을 반환한다고 가정
+    const res = await api.get<
+            { log: string } | { error: string }
+        >(
+            `/audit/session/${sessionID}`
+        );
+    
+    // 2. 응답 데이터 처리
+        // 'log' 속성이 있는지 확인하고 사용하거나, 'error' 속성을 확인하여 사용
+        let rawLog: string;
+
+        if ('log' in res.data && res.data.log) {
+            // 성공적으로 log가 반환된 경우
+            rawLog = res.data.log;
+        } else if ('error' in res.data && res.data.error) {
+            // 백엔드가 JSON 응답 본문에 error 필드를 포함하여 반환한 경우 (HTTP 200 OK일 때)
+            rawLog = `[오류] ${res.data.error}`;
+            console.error("세션 로그 API 응답 오류:", res.data.error);
+        } else {
+            // 예상치 못한 응답 포맷인 경우
+            rawLog = "세션 로그를 불러왔으나, 응답 포맷을 알 수 없습니다.";
         }
-      } catch (err) {
-        console.error("SSE 파싱 에러:", err);
-      }
-    });
 
-    eventSource.onerror = (e) => {
-      console.error("SSE 연결 오류:", e);
-      eventSource.close();
+        const fullLog = cleanData(rawLog); 
+        setSessionOutput(fullLog);
+
+        // 3. 로그를 모두 받은 후 분석 요청 (성공했을 때만 분석 요청하는 것이 더 안전할 수 있음)
+        if ('log' in res.data && res.data.log) {
+            analyzeSession(sessionID);
+        } else {
+            setLoadingAnalysis(false); // 분석 요청을 건너뛰었으므로 loading 상태를 false로
+        }
+    
+  } catch (err) {
+    console.error("세션 로그 요청 실패:", err);
+    setSessionOutput("세션 로그를 불러오는 데 실패했습니다.");
+    setLoadingAnalysis(false);
+  }
+    // const eventSource = new EventSource(
+    //   `${API_BASE}/api/v1/audit/session/${sessionID}`,
+    //   { withCredentials: true }
+    // );
+
+    // eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
+    //   try {
+    //     const payload = JSON.parse(e.data);
+    //     if (payload.type === "print") {
+    //       queueRef.current.push(payload);
+    //       processQueue();
+    //     }
+    //   } catch (err) {
+    //     console.error("SSE 파싱 에러:", err);
+    //   }
+    // });
+
+    // eventSource.onerror = (e) => {
+    //   console.error("SSE 연결 오류:", e);
+    //   eventSource.close();
+    // };
+
+    // eventSourceRef.current = eventSource;
+  };
+
+  const analyzeSession = async (sessionID: string) => {
+    const sessionMeta = sessionMetaMap[sessionID];
+
+    if (!sessionMeta) {
+      console.error("세션 메타데이터를 찾을 수 없습니다.");
+      setLoadingAnalysis(false);
+      return;
+    }
+
+    const payload: AnalyzeSessionRequest = {
+      SessionID: sessionMeta.sid,
+      User: sessionMeta.user,
+      ServerID: sessionMeta.server_id,
+      ServerAddr: sessionMeta.server_addr ?? sessionMeta["addr.local"] ?? "unknown",
+      SessionStart: sessionMeta.session_start,
+      SessionEnd: sessionMeta.session_stop,
+      Transcript: sessionOutput || "세션 로그 없음",
     };
 
-    eventSourceRef.current = eventSource;
+    try {
+       const res = await api.post<AnalyzeSessionResponse>(
+        "/api/v1/analyze", 
+        payload,
+        {
+          // 8080 대신 8000번 포트 서버로 요청하도록 baseURL을 오버라이드
+          baseURL: API_BASE.replace("8080", "8000"),
+        }
+      );
+      setAnalysisResult(res.data);
+    } catch (err) {
+      console.error("분석 요청 실패:", err);
+      setAnalysisResult({ error: "분석 요청 실패" });
+    } finally {
+      setLoadingAnalysis(false);
+    }
   };
 
-  const processQueue = async () => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-    while (queueRef.current.length > 0) {
-      const { data, delay } = queueRef.current.shift();
-      setSessionOutput(prev => prev + cleanData(data));
-      const safeDelay = Math.min(delay ?? 0, 300);
-      await new Promise(res => setTimeout(res, safeDelay));
-    }
-    processingRef.current = false;
-  };
+  // const processQueue = async () => {
+  //   if (processingRef.current) return;
+  //   processingRef.current = true;
+  //   while (queueRef.current.length > 0) {
+  //     const { data, delay } = queueRef.current.shift();
+  //     setSessionOutput(prev => prev + cleanData(data));
+  //     const safeDelay = Math.min(delay ?? 0, 300);
+  //     await new Promise(res => setTimeout(res, safeDelay));
+  //   }
+  //   processingRef.current = false;
+  //   // 모든 출력이 끝난 후 분석 요청
+  // if (currentSessionID && !analysisResult) {
+  //   analyzeSession(currentSessionID);
+  // }
+  // };
 
   const cleanData = (input: string) => input.replace(/.\x08/g, "");
 
@@ -97,9 +186,11 @@ export default function SessionPage() {
     });
 
     api.get("/audit/session").then((res) => {
+      const metaMap: Record<string, any> = {};
       const sessions: SessionLog[] = res.data.map((s: any) => {
         const start = new Date(s.session_start);
         const stop = new Date(s.session_stop);
+        metaMap[s.sid] = s; // 세션 ID 기준으로 원본 저장
         return {
           user: s.user ?? "unknown",
           server: s.server_hostname ?? "unknown",
@@ -109,6 +200,7 @@ export default function SessionPage() {
         };
       });
       setSessionLogs(sessions);
+      setSessionMetaMap(metaMap);
     });
 
     return () => { if (eventSourceRef.current) eventSourceRef.current.close(); };
@@ -166,14 +258,16 @@ export default function SessionPage() {
         open={Boolean(currentSessionID)}
         title="View"
         sessionId={currentSessionID ?? undefined}
-        output={sessionOutput}
+        loading={loadingAnalysis}
+        analysisResult={analysisResult}
         onClose={() => {
-          if (eventSourceRef.current) eventSourceRef.current.close();
-          eventSourceRef.current = null;
+          // if (eventSourceRef.current) eventSourceRef.current.close();
+          // eventSourceRef.current = null;
           setCurrentSessionID(null);
           setSessionOutput("");
-          queueRef.current = [];
-          processingRef.current = false;
+          // queueRef.current = [];
+          // processingRef.current = false;
+          setAnalysisResult(null);
         }}
       />
     </div>

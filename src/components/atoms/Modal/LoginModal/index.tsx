@@ -1,34 +1,76 @@
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Button from '../../Button';
 
 interface LoginModalProps {
   isOpen: boolean;
+  onSuccess: (token: string) => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen }) => {
+function LoginModal({ isOpen, onSuccess }: LoginModalProps) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
-  const handleGitHubLogin = () => {
-    window.location.href = 'https://openswdev.duckdns.org/login';
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:8080/login', {
+        username,
+        password,
+      });
+
+      console.log('로그인 성공:', response.data);
+      const { token } = response.data;
+
+      if (!token) {
+        throw new Error('No token in response');
+      }
+
+      document.cookie = `auth_token=${token}; path=/; domain=localhost; max-age=3600;`
+      onSuccess(token);
+      navigate('/');
+
+    } catch (err) {
+      console.error('로그인 실패:', err);
+      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
+    }
   };
 
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        {/* GitHub 로고 */}
-       <img src="/images/GithubLogo.png" alt="GitHub Logo" style={styles.logo} />
-        {/* 로그인 버튼 */}
-        <Button variant="login" onClick={handleGitHubLogin} style={styles.loginButton}>
-          Continue with GitHub
+        <img src="/images/Jarvis_logo.png" alt="Jarvis Logo" style={styles.logo} />
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={styles.input}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+
+        {error && <div style={styles.error}>{error}</div>}
+
+        <Button variant="login" onClick={handleLogin} style={styles.loginButton}>
+          로그인
         </Button>
       </div>
     </div>
   );
-};
+}
 
-export default LoginModal;
-
-// 스타일 정의
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
     position: 'fixed',
@@ -44,7 +86,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   modal: {
     width: 520,
-    height: 524,
+    height: 550,
     borderRadius: 40,
     background: '#FFF',
     boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.15)',
@@ -52,30 +94,39 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingBottom: 70,
+    paddingTop: 180,
     boxSizing: 'border-box',
   },
-  closeButton: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    background: 'transparent',
-    border: 'none',
-    fontSize: 24,
-    color: '#999',
-    cursor: 'pointer',
-  },
   loginButton: {
-    margin: '0 auto',
+    marginTop: 30,
+    width: 340,
+    height: 50,
+    fontSize: 18,
   },
   logo: {
-  position: 'absolute',
-  top: 9, 
-  left: '50%',
-  transform: 'translateX(-50%)', 
-  width: 443,
-  height: 164,
-  objectFit: 'contain',
-},
+    position: 'absolute',
+    top: 25, 
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 443,
+    height: 140,
+    objectFit: 'contain',
+  },
+  input: {
+    width: 340,
+    height: 50, 
+    marginTop: 15, 
+    padding: '0 15px',
+    border: '1px solid #ccc',
+    borderRadius: 8,
+    fontSize: 18, 
+  },
+  error: {
+    color: 'red',
+    fontSize: 14,
+    marginTop: 20,
+    textAlign: 'center',
+  },
 };
+
+export default LoginModal;

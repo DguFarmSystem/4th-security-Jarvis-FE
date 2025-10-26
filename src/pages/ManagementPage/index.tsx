@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import {
   isDeleteConfirmModalOpenAtom,
+  isAddUserModalOpenAtom,
   isUpdateUserModalOpenAtom,
   selectedUserAtom,
   selectedRoleAtom,
@@ -11,6 +12,7 @@ import type { Role } from "@/types/roleTypes";
 import { UserManagement } from "@/components/atoms/Management/UserManagement";
 import { RoleManagement } from "@/components/atoms/Management/RoleManagement";
 import { ConfirmDeleteModal } from "@/components/atoms/Modal/ConfirmDeleteModal";
+import { AddUserModal } from "@/components/atoms/Modal/AddUserModal";
 import { UpdateUserModal } from "@/components/atoms/Modal/UpdateUserModal";
 import { CreateRoleModal } from "@/components/atoms/Modal/CreateRoleModal";
 import { UpdateRoleModal } from "@/components/atoms/Modal/UpdateRoleModal";
@@ -22,6 +24,7 @@ export default function ManagementPage() {
   const [deletingTarget, setDeletingTarget] = useState<"user" | "role" | null>(null);
 
   const [isDeleteModalOpen, setDeleteModalOpen] = useAtom(isDeleteConfirmModalOpenAtom);
+  const [isAddUserModalOpen, setAddUserModalOpen] = useAtom(isAddUserModalOpenAtom);
   const [isUpdateUserModalOpen, setUpdateUserModalOpen] = useAtom(isUpdateUserModalOpenAtom);
   const [selectedUser, setSelectedUser] = useAtom(selectedUserAtom);
   const [selectedRole, setSelectedRole] = useAtom(selectedRoleAtom);
@@ -60,16 +63,22 @@ export default function ManagementPage() {
 
   // 삭제/업데이트
   const handleUserDelete = async () => {
-    if (!selectedUser) return;
-    try {
-      await api.delete(`/users/${selectedUser.username}`);
-      setDeleteModalOpen(false);
-      setSelectedUser(null);
-      fetchUsers();
-    } catch (err) {
-      console.error("사용자 삭제 실패", err);
-    }
-  };
+  if (!selectedUser) return;
+
+  try {
+    await api.delete("/delete", {
+      data: {
+        username: selectedUser.username,
+      },
+    });
+    setDeleteModalOpen(false);
+    setSelectedUser(null);
+    fetchUsers();
+  } catch (err) {
+    console.error("사용자 삭제 실패", err);
+    alert("사용자 삭제에 실패했습니다.");
+  }
+};
 
   const handleRoleDelete = async () => {
     if (!selectedRole) return;
@@ -184,7 +193,7 @@ const upsertRole = async (name: string, permissions: string[]) => {
           user: u.metadata.name,
           role: u.spec.roles.join(", "),
         }))}
-        
+        onAddUser={() => setAddUserModalOpen(true)}
         onUpdateUser={() => {
           setSelectedUser({ username: "", roles: [] });
           setUpdateUserModalOpen(true);
@@ -238,6 +247,22 @@ const upsertRole = async (name: string, permissions: string[]) => {
             setSelectedRole(null);
           }}
           onConfirm={deletingTarget === "user" ? handleUserDelete : handleRoleDelete}
+        />
+      )}
+
+      {/* 사용자 등록 모달 */}
+      {isAddUserModalOpen && (
+        <AddUserModal
+          onClose={() => setAddUserModalOpen(false)}
+          onSubmit={async ({ username, password }) => {
+            try {
+              await api.post("/register", { username, password });
+              setAddUserModalOpen(false);
+              fetchUsers();
+            } catch (err) {
+              console.error("유저 등록 실패:", err);
+            }
+          }}
         />
       )}
 
@@ -296,7 +321,7 @@ const upsertRole = async (name: string, permissions: string[]) => {
   }}
   onSave={async ({ role, permissions }) => {
     try {
-      await upsertRole(role, permissions); // 여기서 실제 선택된 값 사용
+      await upsertRole(role, permissions);
       setShowEditRoleModal(false);
       setEditRoleName("");
       setEditRoleChecked([]);

@@ -7,6 +7,7 @@ export type ButtonVariant =
   | 'auth-cancel'
   | 'toggle'
   | 'connect'
+  | 'addUser'
   | 'updateUser'
   | 'createRole'
   | 'addToken'
@@ -70,6 +71,12 @@ const Button: React.FC<ButtonProps> = ({
       color: '#000000',
     },
     connect: {
+      width: '125px',
+      height: '43px',
+      borderRadius: '10px',
+      backgroundColor: '#5BA5FF',
+    },
+    addUser: {
       width: '125px',
       height: '43px',
       borderRadius: '10px',
