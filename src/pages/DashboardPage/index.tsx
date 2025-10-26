@@ -3,7 +3,6 @@ import { ResourceSummary } from "@/components/atoms/SummaryPanel";
 import { ResourceTrendsChart } from "@/components/atoms/ResourceTrendsChart";
 import { api } from "@/utils/axios";
 import { mockAppSessions, mockDbSessions } from "@/mocks/mockData";
-import { DiscoverRedirectButton } from "@/components/RedirectButton";
 
 async function fetchNodes() {
   const res = await api.get("/resources/nodes");
@@ -40,7 +39,6 @@ export default function DashboardPage() {
 
   return (
     <div style={{ padding: "40px", display: "flex", flexDirection: "column", gap: "32px" }}>
-      <DiscoverRedirectButton />
       <ResourceTrendsChart
         nodeSessions={sessions}
         dbSessions={mockDbSessions}
