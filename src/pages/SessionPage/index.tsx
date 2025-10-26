@@ -41,82 +41,57 @@ export default function SessionPage() {
   // const processingRef = useRef(false);
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  const handleViewSession = async (sessionID: string) => {
-    if (!sessionID) return;
-    // if (eventSourceRef.current) eventSourceRef.current.close();
+  // SessionPage.tsx (수정된 handleViewSession)
 
-    setSessionOutput("");
-    setCurrentSessionID(sessionID);
-    setAnalysisResult(null);
-    setLoadingAnalysis(true);
+  const handleViewSession = async (sessionID: string) => {
+    if (!sessionID) return;
 
-    // queueRef.current = [];
-    // processingRef.current = false;
+    setSessionOutput("");
+    setCurrentSessionID(sessionID);
+    setAnalysisResult(null);
+    setLoadingAnalysis(true);
 
-    try {
-    // 1. axios를 사용하여 단일 HTTP GET 요청
-    // 백엔드가 { "log": "세션로그 전체 텍스트" } 와 같은 JSON을 반환한다고 가정
-    const res = await api.get<
-            { log: string } | { error: string }
-        >(
-            `/audit/session/${sessionID}`
-        );
-    
-    // 2. 응답 데이터 처리
-        // 'log' 속성이 있는지 확인하고 사용하거나, 'error' 속성을 확인하여 사용
-        let rawLog: string;
+    try {
+    // 백엔드가 JSON 대신 순수 텍스트를 반환할 경우를 대비하여 응답 타입을 string | object로 설정
+    const res = await api.get<any>( 
+            `/audit/session/${sessionID}`
+        );
+    
+        let rawLog: string;
 
-        if ('log' in res.data && res.data.log) {
-            // 성공적으로 log가 반환된 경우
-            rawLog = res.data.log;
-        } else if ('error' in res.data && res.data.error) {
-            // 백엔드가 JSON 응답 본문에 error 필드를 포함하여 반환한 경우 (HTTP 200 OK일 때)
-            rawLog = `[오류] ${res.data.error}`;
-            console.error("세션 로그 API 응답 오류:", res.data.error);
-        } else {
-            // 예상치 못한 응답 포맷인 경우
-            rawLog = "세션 로그를 불러왔으나, 응답 포맷을 알 수 없습니다.";
-        }
+        if (typeof res.data === 'string' && res.data) {
+           
+            rawLog = res.data;
+        } else if (typeof res.data === 'object' && res.data !== null) {
+           
+            if (res.data.error) {
+                rawLog = `[오류] ${res.data.error}`;
+                console.error("세션 로그 API 응답 오류:", res.data.error);
+            } else {
+                // 서버가 반환한 JSON 객체 전체를 로그 내용으로 사용
+                rawLog = JSON.stringify(res.data, null, 2); 
+            }
+        } else {
+            // 예상치 못한 응답 포맷 또는 빈 응답인 경우
+            rawLog = "세션 로그를 불러왔으나, 응답 포맷을 알 수 없습니다.";
+        }
 
-        const fullLog = cleanData(rawLog); 
-        setSessionOutput(fullLog);
+        const fullLog = cleanData(rawLog); 
+        setSessionOutput(fullLog);
 
-        // 3. 로그를 모두 받은 후 분석 요청 (성공했을 때만 분석 요청하는 것이 더 안전할 수 있음)
-        if ('log' in res.data && res.data.log) {
-            analyzeSession(sessionID);
-        } else {
-            setLoadingAnalysis(false); // 분석 요청을 건너뛰었으므로 loading 상태를 false로
-        }
-    
-  } catch (err) {
-    console.error("세션 로그 요청 실패:", err);
-    setSessionOutput("세션 로그를 불러오는 데 실패했습니다.");
-    setLoadingAnalysis(false);
-  }
-    // const eventSource = new EventSource(
-    //   `${API_BASE}/api/v1/audit/session/${sessionID}`,
-    //   { withCredentials: true }
-    // );
-
-    // eventSource.addEventListener("session_chunk", (e: MessageEvent) => {
-    //   try {
-    //     const payload = JSON.parse(e.data);
-    //     if (payload.type === "print") {
-    //       queueRef.current.push(payload);
-    //       processQueue();
-    //     }
-    //   } catch (err) {
-    //     console.error("SSE 파싱 에러:", err);
-    //   }
-    // });
-
-    // eventSource.onerror = (e) => {
-    //   console.error("SSE 연결 오류:", e);
-    //   eventSource.close();
-    // };
-
-    // eventSourceRef.current = eventSource;
-  };
+        // 3. 로그 분석 요청: 데이터가 비어있지 않다면 분석 요청
+        if (rawLog && rawLog.trim() !== "" && !rawLog.startsWith("[오류]")) {
+            analyzeSession(sessionID);
+        } else {
+            setLoadingAnalysis(false); // 로그를 받지 못했으므로 분석 요청 건너뜀
+        }
+    
+  } catch (err) {
+    console.error("세션 로그 요청 실패:", err);
+    setSessionOutput("세션 로그를 불러오는 데 실패했습니다.");
+    setLoadingAnalysis(false);
+  }
+  };
 
   const analyzeSession = async (sessionID: string) => {
     const sessionMeta = sessionMetaMap[sessionID];
