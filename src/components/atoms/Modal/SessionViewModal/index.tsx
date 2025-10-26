@@ -8,6 +8,7 @@ interface SessionViewModalProps {
   sessionId?: string;
   loading?: boolean;
   analysisResult?: AnalyzeSessionResponse & { error?: string } | null;
+  sessionLogOutput: string;
 }
 
 export function SessionViewModal({
@@ -17,6 +18,7 @@ export function SessionViewModal({
   sessionId,
   loading = false,
   analysisResult,
+  sessionLogOutput,
 }: SessionViewModalProps) {
   if (!open) return null;
 
@@ -27,6 +29,10 @@ export function SessionViewModal({
         {sessionId && <div style={subTitleStyle}>Session ID: {sessionId}</div>}
 
         <div style={contentBoxStyle}>
+        <div style={logContainerStyle}>
+            <h4 style={logTitleStyle}>세션 로그</h4>
+            <pre style={logTextStyle}>{sessionLogOutput || "로그를 불러오는 중..."}</pre>
+          </div>
           {loading ? (
             <p style={{ color: "#888", textAlign: "center" }}>분석 중...</p>
           ) : analysisResult?.error ? (
@@ -177,6 +183,34 @@ const closeBtnStyle: React.CSSProperties = {
   borderRadius: 4,
   padding: "8px 16px",
   cursor: "pointer",
+};
+
+const logContainerStyle: React.CSSProperties = {
+  marginTop: 20,
+  marginBottom: 20, 
+  maxHeight: 200, 
+  overflowY: "auto", 
+  border: "1px solid #ddd",
+  borderRadius: 6,
+  background: "#f8f8f8",
+  padding: 10,
+};
+
+const logTitleStyle: React.CSSProperties = {
+  fontSize: 16,
+  fontWeight: 700,
+  marginBottom: 8,
+  color: "#333",
+  borderBottom: "1px solid #eee",
+  paddingBottom: 5,
+};
+
+const logTextStyle: React.CSSProperties = {
+  fontFamily: "monospace",
+  fontSize: 13,
+  whiteSpace: "pre-wrap", 
+  margin: 0,
+  padding: 0,
 };
 
 function getThreatStyle(level?: string): React.CSSProperties {

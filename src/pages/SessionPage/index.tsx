@@ -52,9 +52,9 @@ export default function SessionPage() {
     setLoadingAnalysis(true);
 
     try {
-    // 백엔드가 JSON 대신 순수 텍스트를 반환할 경우를 대비하여 응답 타입을 string | object로 설정
     const res = await api.get<any>( 
-            `/audit/session/${sessionID}`
+            `/audit/session/${sessionID}`,
+{ responseType: 'text' }
         );
     
         let rawLog: string;
@@ -79,9 +79,9 @@ export default function SessionPage() {
         const fullLog = cleanData(rawLog); 
         setSessionOutput(fullLog);
 
-        // 3. 로그 분석 요청: 데이터가 비어있지 않다면 분석 요청
+        // 데이터가 비어있지 않다면 분석 요청
         if (rawLog && rawLog.trim() !== "" && !rawLog.startsWith("[오류]")) {
-            analyzeSession(sessionID);
+            analyzeSession(sessionID, fullLog);
         } else {
             setLoadingAnalysis(false); // 로그를 받지 못했으므로 분석 요청 건너뜀
         }
@@ -93,7 +93,7 @@ export default function SessionPage() {
   }
   };
 
-  const analyzeSession = async (sessionID: string) => {
+  const analyzeSession = async (sessionID: string, transcript: string) => {
     const sessionMeta = sessionMetaMap[sessionID] || {};
 
     if (!sessionMeta) {
@@ -109,7 +109,7 @@ export default function SessionPage() {
       ServerAddr: sessionMeta.server_addr ?? sessionMeta["addr.local"] ?? "unknown",
       SessionStart: sessionMeta.session_start ?? "",
       SessionEnd: sessionMeta.session_stop ?? "",
-      Transcript: sessionOutput || "세션 로그 없음",
+      Transcript: transcript || "세션 로그 없음",
     };
 
     try {
@@ -129,22 +129,6 @@ export default function SessionPage() {
       setLoadingAnalysis(false);
     }
   };
-
-  // const processQueue = async () => {
-  //   if (processingRef.current) return;
-  //   processingRef.current = true;
-  //   while (queueRef.current.length > 0) {
-  //     const { data, delay } = queueRef.current.shift();
-  //     setSessionOutput(prev => prev + cleanData(data));
-  //     const safeDelay = Math.min(delay ?? 0, 300);
-  //     await new Promise(res => setTimeout(res, safeDelay));
-  //   }
-  //   processingRef.current = false;
-  //   // 모든 출력이 끝난 후 분석 요청
-  // if (currentSessionID && !analysisResult) {
-  //   analyzeSession(currentSessionID);
-  // }
-  // };
 
   const cleanData = (input: string) => input.replace(/.\x08/g, "");
 
@@ -239,13 +223,10 @@ export default function SessionPage() {
         sessionId={currentSessionID ?? undefined}
         loading={loadingAnalysis}
         analysisResult={analysisResult}
+        sessionLogOutput={sessionOutput}
         onClose={() => {
-          // if (eventSourceRef.current) eventSourceRef.current.close();
-          // eventSourceRef.current = null;
           setCurrentSessionID(null);
           setSessionOutput("");
-          // queueRef.current = [];
-          // processingRef.current = false;
           setAnalysisResult(null);
         }}
       />
