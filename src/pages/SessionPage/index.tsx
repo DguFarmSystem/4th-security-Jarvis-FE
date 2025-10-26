@@ -94,21 +94,21 @@ export default function SessionPage() {
   };
 
   const analyzeSession = async (sessionID: string) => {
-    const sessionMeta = sessionMetaMap[sessionID];
+    const sessionMeta = sessionMetaMap[sessionID] || {};
 
     if (!sessionMeta) {
-      console.error("세션 메타데이터를 찾을 수 없습니다.");
+      console.error("세션 메타데이터를 찾을 수 없습니다. (ID: ${sessionID}");
       setLoadingAnalysis(false);
       return;
     }
 
     const payload: AnalyzeSessionRequest = {
-      SessionID: sessionMeta.sid,
-      User: sessionMeta.user,
-      ServerID: sessionMeta.server_id,
+      SessionID: sessionID,
+      User: sessionMeta.user ?? "unknown",
+      ServerID: sessionMeta.server_id ?? "unknown",
       ServerAddr: sessionMeta.server_addr ?? sessionMeta["addr.local"] ?? "unknown",
-      SessionStart: sessionMeta.session_start,
-      SessionEnd: sessionMeta.session_stop,
+      SessionStart: sessionMeta.session_start ?? "",
+      SessionEnd: sessionMeta.session_stop ?? "",
       Transcript: sessionOutput || "세션 로그 없음",
     };
 
@@ -163,6 +163,10 @@ export default function SessionPage() {
     api.get("/audit/session").then((res) => {
       const metaMap: Record<string, any> = {};
       const sessions: SessionLog[] = res.data.map((s: any) => {
+        const id = s.sid || s.uid; // sid가 주 키이지만, 혹시 대비하여 uid도 고려
+        if (id) {
+          metaMap[id] = s; // 세션 ID를 키로 사용하여 원본 메타데이터 저장
+        }
         const start = new Date(s.session_start);
         const stop = new Date(s.session_stop);
         metaMap[s.sid] = s; // 세션 ID 기준으로 원본 저장
