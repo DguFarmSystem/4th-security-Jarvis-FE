@@ -43,7 +43,7 @@ function LoginModal({ isOpen, onSuccess }: LoginModalProps) {
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <img src="/images/GithubLogo.png" alt="GitHub Logo" style={styles.logo} />
+        <img src="/images/Jarvis_logo.png" alt="Jarvis Logo" style={styles.logo} />
 
         <input
           type="text"
@@ -86,7 +86,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   modal: {
     width: 520,
-    height: 524,
+    height: 550,
     borderRadius: 40,
     background: '#FFF',
     boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.15)',
@@ -94,37 +94,38 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 70,
+    paddingTop: 180,
     boxSizing: 'border-box',
   },
   loginButton: {
-    marginTop: 20,
-    width: 300,
-    height: 44,
+    marginTop: 30,
+    width: 340,
+    height: 50,
+    fontSize: 18,
   },
   logo: {
     position: 'absolute',
-    top: 9,
+    top: 25, 
     left: '50%',
     transform: 'translateX(-50%)',
     width: 443,
-    height: 164,
+    height: 140,
     objectFit: 'contain',
   },
   input: {
-    width: 300,
-    height: 44,
-    marginTop: 12,
-    padding: '0 12px',
+    width: 340,
+    height: 50, 
+    marginTop: 15, 
+    padding: '0 15px',
     border: '1px solid #ccc',
-    borderRadius: 6,
-    fontSize: 16,
+    borderRadius: 8,
+    fontSize: 18, 
   },
   error: {
     color: 'red',
     fontSize: 14,
-    marginTop: 10,
+    marginTop: 20,
+    textAlign: 'center',
   },
 };
 

@@ -1,10 +1,18 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { BrowserRouter } from 'react-router-dom';
 import LoginModal from './index';
 
 const meta: Meta<typeof LoginModal> = {
   title: 'Components/Modal/LoginModal',
   component: LoginModal,
+  decorators: [
+    (Story) => (
+      <BrowserRouter>
+        <Story />
+      </BrowserRouter>
+    ),
+  ],
 };
 
 export default meta;
