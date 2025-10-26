@@ -6,5 +6,4 @@ export const registerLogoutHandler = (cb: () => void) => {
 
 export const logoutOn401 = () => {
   if (logoutCallback) logoutCallback();
-  else localStorage.removeItem("accessToken");
 };
