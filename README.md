@@ -70,25 +70,7 @@ cd your-project
 
 ---
 
-### 3. 환경 변수 설정 (`.env`)
-
-루트 경로에 `.env` 또는 `.env.local` 파일을 생성한 후 아래 내용을 추가하세요:
-
-```dotenv
-# .env
-
-VITE_API_URL=https://your-api-url.example.com
-```
-
-| 변수명            | 설명                       | 필수 | 예시                        |
-| -------------- | ------------------------ | -- | ------------------------- |
-| `VITE_API_URL` | 백엔드 API 서버 주소 (프론트에서 사용) | ✅  | `https://api.example.com` |
-
-> ⚠️ 이 파일은 커밋하지 않도록 `.gitignore`에 등록되어 있습니다.
-
----
-
-### 4. 의존성 설치
+### 3. 의존성 설치
 
 ```bash
 pnpm install
@@ -96,104 +78,13 @@ pnpm install
 
 ---
 
-### 5. 로컬 개발 서버 실행
+### 4. 로컬 개발 서버 실행
 
 ```bash
 pnpm dev
 ```
 
 * 기본 URL: [http://localhost:5173](http://localhost:5173)
-
----
-
-## 🚀 GitHub Actions 설정 가이드
-
-이 프로젝트는 GitHub Actions를 통해 다음과 같은 자동화를 수행합니다:
-
-### ✅ Workflow 목록
-
-| Workflow 이름                    | 트리거 조건                                 | 주요 동작                                    |
-| ------------------------------ | -------------------------------------- | ---------------------------------------- |
-| **Build & Deploy Storybook**   | PR 생성 시 (`src/components/atoms/**`) 변경 | Chromatic에 Storybook 업로드 후 PR에 댓글로 링크 공유 |
-| **Preview**                    | 모든 PR 생성 시                             | Vercel Preview 배포 및 PR에 링크 공유            |
-| **Synchronize to forked repo** | `main` 브랜치 push 시                      | 지정된 포크 저장소로 코드 자동 푸시                     |
-
----
-
-## 🔐 GitHub Actions Secrets 설정 가이드
-
-GitHub Actions에서 사용하는 비밀 키(Secrets)는 다음 경로에서 등록할 수 있습니다:
-
-> **경로**:
-> GitHub Repository → `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
-
-각 항목의 발급 및 설정 방법은 다음과 같습니다:
-
----
-
-### 1. `CHROMATIC_PROJECT_TOKEN`
-
-* **용도**: Chromatic에 Storybook을 배포할 때 인증
-* **발급 방법**:
-
-  1. [https://www.chromatic.com/](https://www.chromatic.com/) 에 로그인
-  2. 프로젝트 생성 후, 좌측 메뉴 → **"Manage project"**
-  3. **"Project Token"** 복사
-* **GitHub Secrets에 추가**:
-
-  * Name: `CHROMATIC_PROJECT_TOKEN`
-  * Value: 위에서 복사한 Token
-
----
-
-### 2. `GH_TOKEN`
-
-* **용도**: PR에 자동 댓글을 작성하거나, Chromatic 등 외부 연동 시 인증
-* **발급 방법**:
-
-  1. GitHub → [Developer Settings → Personal access tokens (classic)](https://github.com/settings/tokens)
-  2. "Generate new token (classic)" 클릭
-  3. **권한 설정**:
-
-     * `repo` (전체)
-     * `write:discussion`
-     * `write:packages`
-     * `workflow`
-  4. Token 생성 후 복사 (한 번만 보여집니다)
-* **GitHub Secrets에 추가**:
-
-  * Name: `GH_TOKEN`
-  * Value: 위에서 생성한 Personal Access Token
-
-> ⚠️ 이 토큰은 **PR 댓글 작성**, **Chromatic 인증** 등에 쓰입니다.
-
----
-
-### 3. `AUTO_ACTIONS`
-
-* **용도**: `main` 브랜치 변경 시, 포크된 저장소로 자동 푸시
-* **발급 방법**: 본인의 GitHub 계정에서 **PAT (Personal Access Token)** 발급
-
-  * 위의 `GH_TOKEN` 발급 절차와 동일하되, 권한에 다음을 포함해야 함:
-
-    * `repo`
-    * `workflow`
-    * `admin:repo_hook`
-* **GitHub Secrets에 추가**:
-
-  * Name: `AUTO_ACTIONS`
-  * Value: 생성한 토큰
-
----
-
-### 4. `OFFICIAL_ACCOUNT_EMAIL`
-
-* **용도**: Git user.email 설정에 사용됨 (포크 푸시 시)
-* **설정 방법**: 푸시용 GitHub 계정의 등록된 이메일 사용
-* **GitHub Secrets에 추가**:
-
-  * Name: `OFFICIAL_ACCOUNT_EMAIL`
-  * Value: `example@youremail.com`
 
 ---
 
