@@ -47,15 +47,6 @@
 
 ## 🧑‍💻 기여 가이드
 
-### 브랜치 전략
-
-* 모든 PR은 `main` 브랜치를 대상으로 생성
-
-### PR 생성 시 자동 작업
-
-* Chromatic에서 Storybook Preview 배포 → PR에 댓글로 링크 추가
-* Vercel Preview 배포 → PR에 댓글로 배포 링크 추가
-
 ### 📝 기여 방법 (Contribution Guide)
 
 1. `main` 브랜치를 기준으로 새 브랜치 생성
