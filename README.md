@@ -64,8 +64,8 @@ npm install -g pnpm
 ### 2. 프로젝트 클론
 
 ```bash
-git clone https://github.com/your-org/your-project.git
-cd your-project
+git clone https://github.com/DguFarmSystem/4th-security-Jarvis-FE.git
+cd 4th-security-Jarvis-FE
 ```
 
 ---
