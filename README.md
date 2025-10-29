@@ -45,46 +45,7 @@
 
 ## 🚀 설치 가이드
 
-이 가이드는 Jarvis 프론트엔드 프로젝트를 로컬에서 실행하고, Vercel에 배포하거나 GitHub Actions로 협업하는 데 필요한 설정 방법을 설명합니다.
-
-### 1. 시스템 요구사항
-
-| 항목     | 권장 버전 |
-|----------|----------|
-| Node.js  | `>=18.x` |
-| pnpm     | `>=8.x`  |
-
-```bash
-# pnpm이 없다면 설치
-npm install -g pnpm
-````
-
----
-
-### 2. 프로젝트 클론
-
-```bash
-git clone https://github.com/DguFarmSystem/4th-security-Jarvis-FE.git
-cd 4th-security-Jarvis-FE
-```
-
----
-
-### 3. 의존성 설치
-
-```bash
-pnpm install
-```
-
----
-
-### 4. 로컬 개발 서버 실행
-
-```bash
-pnpm dev
-```
-
-* 기본 URL: [http://localhost:5173](http://localhost:5173)
+* **설치 가이드**: Deploy 레포지토리에서 clone을 하여 docker로 빌드하거나 이미지를 받아 실행시킵니다.
 
 ---
 
@@ -99,8 +60,6 @@ pnpm dev
 * Chromatic에서 Storybook Preview 배포 → PR에 댓글로 링크 추가
 * Vercel Preview 배포 → PR에 댓글로 배포 링크 추가
 
----
-
 ### 📝 기여 방법 (Contribution Guide)
 
 1. `main` 브랜치를 기준으로 새 브랜치 생성
@@ -108,13 +67,9 @@ pnpm dev
 3. PR 생성 → GitHub Actions가 자동으로 PR 미리보기 및 Storybook URL 제공
 4. 리뷰 후 병합
 
----
-
 ### 🖥️ 로컬 개발 팁
 
 * 실제 API 연동 없이 테스트하려면 `Mock Service Worker (MSW)`를 활성화하면 됩니다.
 * 컴포넌트 개발은 Storybook (`pnpm storybook`)으로 병행 개발 가능합니다.
 * 환경에 따라 Vite dev server 포트를 커스터마이징할 수 있습니다:
   `.env.local`에 `VITE_PORT=3000` 등 추가
-
----
